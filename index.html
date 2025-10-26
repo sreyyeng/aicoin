@@ -1657,7 +1657,7 @@
         // ===== AI分析 =====
 
         async function getAIAdvice(data, apiKey) {
-            let prompt = `你是一位专业的加密货币交易顾问。请根据以下多时间框架的市场数据和技术指标，给出专业的交易建议。
+            let prompt = `你是一位专业的加密货币交易顾问。请根据以下多时间框架的市场数据和技术指标，给出专业且简洁的交易建议，不要说客套话。
 
 【币种信息】
 - 交易对: ${data.symbol}-USDT
@@ -1708,7 +1708,7 @@ ${data.tradeType !== 'SPOT' ? `- 资金费率: ${data.marketData.fundingRate}
                     messages: [
                         {
                             role: 'system',
-                            content: '你是一位经验丰富的加密货币交易顾问，精通多时间框架技术分析和风险管理。你的建议应该专业、客观、务实，并且要明确给出建议。'
+                            content: '你是一位经验丰富的加密货币交易顾问，精通多时间框架技术分析和风险管理。你的建议应该专业、客观、务实，并且要明确给出建议，不要说客套话。'
                         },
                         { role: 'user', content: prompt }
                     ],
