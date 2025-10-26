@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI加密货币交易顾问 Pro v2.2 完整版</title>
+    <title>AI加密货币交易顾问 Pro v2.3</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
@@ -426,15 +426,6 @@
             color: white;
         }
 
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #dc3545;
-            margin: 20px 0;
-        }
-
         .config-section {
             background: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -447,14 +438,6 @@
             font-weight: 700;
             color: #856404;
             margin-bottom: 10px;
-        }
-
-        .info-tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-            color: #667eea;
-            margin-left: 5px;
         }
 
         .coin-selector {
@@ -673,6 +656,45 @@
             transform: translateX(26px);
         }
 
+        .ai-provider-selector {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .provider-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .provider-option:hover {
+            background: #f8f9fa;
+        }
+
+        .provider-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .provider-label {
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .provider-desc {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-left: 30px;
+        }
+
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -710,8 +732,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 AI加密货币交易顾问 Pro v2.2</h1>
-            <p>多时间框架分析 | 自动数据更新 | 专业风险评估</p>
+            <h1>🤖 AI加密货币交易顾问 Pro v2.3</h1>
+            <p>双AI模型 | 多级止盈止损 | 精准建议 | 自动更新</p>
             <div class="auto-refresh-badge" id="autoRefreshBadge">
                 <div class="pulse"></div>
                 <span id="refreshStatus">自动更新已停止</span>
@@ -736,15 +758,30 @@
                 <div class="section-title">⚙️ API配置</div>
                 <div class="config-section">
                     <div class="config-title">📌 使用说明</div>
-                    <p>DeepSeek API用于AI深度分析。本工具支持自动更新OKX市场数据（1-10分钟可调），AI分析需手动触发节省成本。</p>
+                    <p>选择AI服务商并输入API Key。支持DeepSeek和阿里云千问。</p>
                 </div>
+
+                <!-- AI服务商选择 -->
+                <div class="ai-provider-selector">
+                    <div class="provider-option" onclick="selectProvider('deepseek')">
+                        <input type="radio" name="aiProvider" id="providerDeepseek" value="deepseek" checked>
+                        <label for="providerDeepseek" class="provider-label">🔵 DeepSeek</label>
+                    </div>
+                    <div class="provider-desc">推理能力强，成本低（¥0.001/千tokens）</div>
+                    
+                    <div class="provider-option" onclick="selectProvider('qwen')" style="margin-top: 10px;">
+                        <input type="radio" name="aiProvider" id="providerQwen" value="qwen">
+                        <label for="providerQwen" class="provider-label">🟠 阿里云千问</label>
+                    </div>
+                    <div class="provider-desc">中文优化，响应快（¥0.002/千tokens）</div>
+                </div>
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label>
-                            DeepSeek API Key
-                            <span class="info-tooltip" data-tooltip="必填：用于AI分析">ℹ️</span>
+                            <span id="apiKeyLabel">DeepSeek API Key</span>
                         </label>
-                        <input type="password" id="deepseekApiKey" placeholder="必填：sk-xxxxxx" required>
+                        <input type="password" id="apiKey" placeholder="必填：sk-xxxxxx" required>
                     </div>
                 </div>
             </div>
@@ -874,8 +911,8 @@
                     <div class="ai-advice-header">
                         <span class="ai-icon">🤖</span>
                         <div>
-                            <div class="ai-advice-title">DeepSeek AI 专业交易建议</div>
-                            <small style="color: #6c757d;">基于多时间框架技术分析 | <span id="aiUpdateTime">--</span></small>
+                            <div class="ai-advice-title"><span id="aiProviderName">DeepSeek</span> AI 交易建议</div>
+                            <small style="color: #6c757d;">多时间框架 + 多级止盈止损 | <span id="aiUpdateTime">--</span></small>
                         </div>
                     </div>
                     <div class="advice-content" id="aiAdvice"></div>
@@ -889,7 +926,7 @@
                 <div class="section-title">🔍 多币种雷达扫描</div>
                 <div class="config-section">
                     <div class="config-title">💡 功能说明</div>
-                    <p>一键扫描多个币种，通过技术指标评分找出最佳交易机会。评分越高，交易信号越强。</p>
+                    <p>一键扫描多个币种，通过技术指标评分找出最佳交易机会。</p>
                 </div>
 
                 <div class="form-group">
@@ -932,7 +969,7 @@
                 <div class="section-title">📈 历史回测</div>
                 <div class="config-section">
                     <div class="config-title">💡 功能说明</div>
-                    <p>基于历史数据模拟交易策略表现，评估策略的胜率和收益。回测使用EMA交叉策略：EMA20上穿EMA50做多，下穿做空。</p>
+                    <p>基于历史数据模拟交易策略表现。</p>
                 </div>
 
                 <div class="form-grid">
@@ -1006,11 +1043,36 @@
         let isMonitoring = false;
         let lastMarketData = null;
         let nextUpdateTimeout = null;
+        let currentAIProvider = 'deepseek';
 
         const popularCoins = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'ADA', 'AVAX', 'DOT', 'MATIC', 'LINK', 'UNI', 'ATOM', 'LTC', 'BCH'];
 
-        // ===== 工具函数 =====
-        
+        // AI服务商选择
+        function selectProvider(provider) {
+            currentAIProvider = provider;
+            document.getElementById('providerDeepseek').checked = (provider === 'deepseek');
+            document.getElementById('providerQwen').checked = (provider === 'qwen');
+            
+            const label = document.getElementById('apiKeyLabel');
+            const input = document.getElementById('apiKey');
+            
+            if (provider === 'deepseek') {
+                label.textContent = 'DeepSeek API Key';
+                input.placeholder = '必填：sk-xxxxxx';
+                document.getElementById('aiProviderName').textContent = 'DeepSeek';
+            } else {
+                label.textContent = '阿里云千问 API Key';
+                input.placeholder = '必填：sk-xxxxxx (阿里云)';
+                document.getElementById('aiProviderName').textContent = '千问';
+            }
+            
+            const savedKey = localStorage.getItem(`${provider}ApiKey`);
+            if (savedKey) {
+                input.value = savedKey;
+            }
+        }
+
+        // 工具函数
         function formatSignificantDigits(num, minDigits = 4) {
             if (num === 0) return '0';
             const absNum = Math.abs(num);
@@ -1076,19 +1138,18 @@
             });
         }
 
-        // ===== 自动刷新功能 =====
-
+        // 自动刷新功能
         async function startMonitoring() {
             const symbol = document.getElementById('symbol').value.toUpperCase().trim();
-            const deepseekApiKey = document.getElementById('deepseekApiKey').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
 
             if (!symbol) {
                 alert('请输入币种代码');
                 return;
             }
 
-            if (!deepseekApiKey) {
-                alert('请输入DeepSeek API Key');
+            if (!apiKey) {
+                alert('请输入API Key');
                 return;
             }
 
@@ -1268,10 +1329,10 @@
         }
 
         async function triggerAIAnalysis() {
-            const deepseekApiKey = document.getElementById('deepseekApiKey').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
             
-            if (!deepseekApiKey) {
-                alert('请输入DeepSeek API Key');
+            if (!apiKey) {
+                alert('请输入API Key');
                 return;
             }
 
@@ -1329,7 +1390,7 @@
                     position: positionInfo,
                     recentPrices1H: data1H.closes.slice(-20),
                     recentPrices4H: data4H.closes.slice(-10)
-                }, deepseekApiKey);
+                }, apiKey, currentAIProvider);
 
                 displayAIAdvice(aiAdvice);
                 document.getElementById('aiAdviceSection').style.display = 'block';
@@ -1345,8 +1406,7 @@
             }
         }
 
-        // ===== 技术指标计算 =====
-
+        // 技术指标计算
         function calculateEMA(data, period) {
             const k = 2 / (period + 1);
             let ema = [data[0]];
@@ -1451,8 +1511,7 @@
             return { text: '强烈做空', class: 'signal-sell' };
         }
 
-        // ===== 数据获取 =====
-
+        // 数据获取
         async function fetchMarketData(instId, tradeType, bar, limit) {
             const candlesResponse = await axios.get(`https://www.okx.com/api/v5/market/candles`, {
                 params: { instId, bar, limit }
@@ -1525,8 +1584,7 @@
             };
         }
 
-        // ===== 数据显示 =====
-
+        // 数据显示
         function displayMarketData(data) {
             const container = document.getElementById('marketData');
             const changeClass = data.change24h >= 0 ? 'positive' : 'negative';
@@ -1654,76 +1712,94 @@
             });
         }
 
-        // ===== AI分析 =====
+        // AI分析（优化版）
+        async function getAIAdvice(data, apiKey, provider) {
+            const atr1H = data.indicators1H.atr;
+            const atr4H = data.indicators4H.atr;
+            
+            let prompt = `作为专业交易员，直接给出交易建议，不要客套话。
 
-        async function getAIAdvice(data, apiKey) {
-            let prompt = `你是一位专业的加密货币交易顾问。请根据以下多时间框架的市场数据和技术指标，给出专业且简洁的交易建议，不要说客套话。
+【市场概况】
+${data.symbol}: ${formatSignificantDigits(data.currentPrice, 4)} | 24H: ${data.marketData.change24h.toFixed(2)}%
+ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigits(atr4H, 4)}
 
-【币种信息】
-- 交易对: ${data.symbol}-USDT
-- 交易类型: ${data.tradeType === 'SPOT' ? '现货' : '永续合约'}
-- 当前价格: ${formatSignificantDigits(data.currentPrice, 4)} USDT
+【1H指标】EMA20: ${formatSignificantDigits(data.indicators1H.ema20, 4)} | EMA50: ${formatSignificantDigits(data.indicators1H.ema50, 4)} | RSI: ${data.indicators1H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators1H.macd.histogram, 4)}
 
-【市场数据】
-- 24小时涨跌幅: ${data.marketData.change24h.toFixed(2)}%
-- 24小时最高价: ${formatSignificantDigits(data.marketData.high24h, 4)}
-- 24小时最低价: ${formatSignificantDigits(data.marketData.low24h, 4)}
-${data.tradeType !== 'SPOT' ? `- 资金费率: ${data.marketData.fundingRate}
-- 持仓量: ${data.marketData.openInterest}` : ''}
-
-【1小时级别技术指标】
-- EMA(20): ${formatSignificantDigits(data.indicators1H.ema20, 4)}
-- EMA(50): ${formatSignificantDigits(data.indicators1H.ema50, 4)}
-- RSI(14): ${data.indicators1H.rsi14.toFixed(2)}
-- MACD柱状图: ${formatSignificantDigits(data.indicators1H.macd.histogram, 4)}
-- ATR(14): ${formatSignificantDigits(data.indicators1H.atr, 4)}
-
-【4小时级别技术指标】
-- EMA(20): ${formatSignificantDigits(data.indicators4H.ema20, 4)}
-- EMA(50): ${formatSignificantDigits(data.indicators4H.ema50, 4)}
-- RSI(14): ${data.indicators4H.rsi14.toFixed(2)}
-- MACD柱状图: ${formatSignificantDigits(data.indicators4H.macd.histogram, 4)}
-
+【4H指标】EMA20: ${formatSignificantDigits(data.indicators4H.ema20, 4)} | EMA50: ${formatSignificantDigits(data.indicators4H.ema50, 4)} | RSI: ${data.indicators4H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators4H.macd.histogram, 4)}
 `;
 
             if (data.position.status !== 'none') {
-                const positionType = data.position.status === 'long' ? '做多' : '做空';
+                const posType = data.position.status === 'long' ? '多' : '空';
+                const pnl = data.position.pnlPercent.toFixed(2);
                 
-                prompt += `【当前持仓】
-- 方向: ${positionType}
-- 开仓价格: ${formatSignificantDigits(data.position.entryPrice, 4)} USDT
-- 当前价格: ${formatSignificantDigits(data.currentPrice, 4)} USDT
-- 当前浮动盈亏: ${data.position.pnl > 0 ? '+' : ''}${formatSignificantDigits(data.position.pnl, 4)} USDT (${data.position.pnlPercent > 0 ? '+' : ''}${data.position.pnlPercent.toFixed(2)}%)
+                prompt += `
+【持仓】${posType}单 | 开仓: ${formatSignificantDigits(data.position.entryPrice, 4)} | 当前: ${formatSignificantDigits(data.currentPrice, 4)} | 盈亏: ${pnl}%
 
-请基于当前持仓情况，结合多时间框架技术分析，给出专业建议（明确说明：建议继续持有/建议止盈/建议止损），并给出具体的止盈止损价格（基于当前价格和ATR）。`;
+直接说：继续持有/止盈/止损（选一个，必须明确）
+
+然后给出：
+1. 三级止盈（保守/中性/激进，价格间隔3-5倍ATR）
+2. 止损价（1.5-2倍ATR，保护本金或利润）
+3. 核心理由（1H和4H趋势是否一致？关键位在哪？）`;
             } else {
-                prompt += `【当前状态】未持仓
+                prompt += `
+【未持仓】当前: ${formatSignificantDigits(data.currentPrice, 4)}
 
-请基于多时间框架技术分析，给出专业建议（明确说明：建议观望/建议做多/建议做空），如建议入场，请给出基于当前价格的具体入场价格、止盈止损价格（参考ATR）。`;
+直接说：做多/做空/观望（选一个，必须明确，不要模棱两可）
+
+如果建议入场，给出：
+1. 入场价格区间（当前价±1-2倍ATR，不要离太远）
+2. 三级止盈（保守/中性/激进，间隔3-5倍ATR）
+3. 止损价（1.5-2倍ATR）
+4. 核心理由（多空共振？背离？趋势延续？用1句话说清楚）
+
+如果观望，说明等待什么信号（突破/回调/指标修复），给出具体价格。`;
             }
 
+            prompt += `
+
+要求：
+- 不说废话（风控/DYOR等客套话删掉）
+- 价格必须具体，基于ATR倍数计算
+- 观点鲜明，不做好好先生
+- 三级止盈拉开距离，避免频繁交易
+- 用专业术语，简洁有力`;
+
             try {
-                const response = await axios.post('https://api.deepseek.com/v1/chat/completions', {
-                    model: 'deepseek-chat',
+                let apiUrl, modelName, headers;
+                
+                if (provider === 'deepseek') {
+                    apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+                    modelName = 'deepseek-chat';
+                    headers = {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    };
+                } else {
+                    apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+                    modelName = 'qwen-plus';
+                    headers = {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    };
+                }
+
+                const response = await axios.post(apiUrl, {
+                    model: modelName,
                     messages: [
                         {
                             role: 'system',
-                            content: '你是一位经验丰富的加密货币交易顾问，精通多时间框架技术分析和风险管理。你的建议应该专业、客观、务实，并且要明确给出建议，不要说客套话。'
+                            content: '你是顶尖交易员，擅长多时间框架分析，给建议直接、鲜明、不拖泥带水。'
                         },
                         { role: 'user', content: prompt }
                     ],
                     temperature: 0.7,
-                    max_tokens: 2500
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+                    max_tokens: 1500
+                }, { headers });
 
                 return response.data.choices[0].message.content;
             } catch (error) {
-                console.error('DeepSeek API调用失败:', error);
+                console.error('AI API调用失败:', error);
                 throw new Error('AI分析失败: ' + (error.response?.data?.error?.message || error.message));
             }
         }
@@ -1734,25 +1810,24 @@ ${data.tradeType !== 'SPOT' ? `- 资金费率: ${data.marketData.fundingRate}
             let signal = '';
             const lowerAdvice = advice.toLowerCase();
             
-            if (lowerAdvice.includes('建议做多') || lowerAdvice.includes('建议买入')) {
-                signal = '<span class="signal-badge signal-buy">📈 建议做多</span>';
-            } else if (lowerAdvice.includes('建议做空') || lowerAdvice.includes('建议卖出')) {
-                signal = '<span class="signal-badge signal-sell">📉 建议做空</span>';
-            } else if (lowerAdvice.includes('建议继续持有') || lowerAdvice.includes('建议持有')) {
-                signal = '<span class="signal-badge signal-hold">⏸️ 建议持有</span>';
-            } else if (lowerAdvice.includes('建议止盈')) {
-                signal = '<span class="signal-badge signal-buy">💰 建议止盈</span>';
-            } else if (lowerAdvice.includes('建议止损')) {
-                signal = '<span class="signal-badge signal-sell">🛑 建议止损</span>';
-            } else if (lowerAdvice.includes('建议观望') || lowerAdvice.includes('继续观望')) {
-                signal = '<span class="signal-badge signal-wait">👀 建议观望</span>';
+            if (lowerAdvice.includes('做多') || lowerAdvice.includes('买入')) {
+                signal = '<span class="signal-badge signal-buy">📈 做多</span>';
+            } else if (lowerAdvice.includes('做空') || lowerAdvice.includes('卖出')) {
+                signal = '<span class="signal-badge signal-sell">📉 做空</span>';
+            } else if (lowerAdvice.includes('继续持有') || lowerAdvice.includes('持有')) {
+                signal = '<span class="signal-badge signal-hold">⏸️ 持有</span>';
+            } else if (lowerAdvice.includes('止盈')) {
+                signal = '<span class="signal-badge signal-buy">💰 止盈</span>';
+            } else if (lowerAdvice.includes('止损')) {
+                signal = '<span class="signal-badge signal-sell">🛑 止损</span>';
+            } else if (lowerAdvice.includes('观望')) {
+                signal = '<span class="signal-badge signal-wait">👀 观望</span>';
             }
             
             container.innerHTML = signal + '<br><br>' + advice.replace(/\n/g, '<br>');
         }
 
-        // ===== 多币种雷达 =====
-
+        // 多币种雷达
         async function startRadarScan() {
             const selectedCoins = Array.from(document.querySelectorAll('.coin-chip.selected')).map(chip => chip.textContent);
             
@@ -1848,8 +1923,7 @@ ${data.tradeType !== 'SPOT' ? `- 资金费率: ${data.marketData.fundingRate}
             }).join('');
         }
 
-        // ===== 历史回测 =====
-
+        // 历史回测
         async function startBacktest() {
             const symbol = document.getElementById('backtestSymbol').value.toUpperCase().trim();
             const period = parseInt(document.getElementById('backtestPeriod').value);
@@ -1923,8 +1997,7 @@ ${data.tradeType !== 'SPOT' ? `- 资金费率: ${data.marketData.fundingRate}
                             type: 'long',
                             entryPrice: currentPrice,
                             quantity: quantity,
-                            entryTime: timestamps[i],
-                            entryIndex: i
+                            entryTime: timestamps[i]
                         };
                     } else if (prevEma20 >= prevEma50 && currEma20 < currEma50) {
                         const amount = capital * positionSize;
@@ -1933,12 +2006,10 @@ ${data.tradeType !== 'SPOT' ? `- 资金费率: ${data.marketData.fundingRate}
                             type: 'short',
                             entryPrice: currentPrice,
                             quantity: quantity,
-                            entryTime: timestamps[i],
-                            entryIndex: i
+                            entryTime: timestamps[i]
                         };
                     }
-                }
-                else {
+                } else {
                     let shouldClose = false;
                     
                     if (position.type === 'long' && prevEma20 >= prevEma50 && currEma20 < currEma50) {
@@ -2113,16 +2184,29 @@ ${data.tradeType !== 'SPOT' ? `- 资金费率: ${data.marketData.fundingRate}
             });
         }
 
-        // ===== 初始化 =====
-
+        // 初始化
         window.onload = function() {
             const savedDeepseekKey = localStorage.getItem('deepseekApiKey');
-            if (savedDeepseekKey) document.getElementById('deepseekApiKey').value = savedDeepseekKey;
+            const savedQwenKey = localStorage.getItem('qwenApiKey');
+            
+            if (savedDeepseekKey && currentAIProvider === 'deepseek') {
+                document.getElementById('apiKey').value = savedDeepseekKey;
+            } else if (savedQwenKey && currentAIProvider === 'qwen') {
+                document.getElementById('apiKey').value = savedQwenKey;
+            }
+            
             initCoinSelector();
         };
 
-        document.getElementById('deepseekApiKey').addEventListener('change', function() {
-            localStorage.setItem('deepseekApiKey', this.value);
+        document.getElementById('apiKey').addEventListener('change', function() {
+            localStorage.setItem(`${currentAIProvider}ApiKey`, this.value);
+        });
+
+        document.querySelectorAll('input[name="aiProvider"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const provider = this.value;
+                selectProvider(provider);
+            });
         });
 
         window.addEventListener('beforeunload', () => {
