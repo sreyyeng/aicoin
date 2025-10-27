@@ -1921,6 +1921,107 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
             container.innerHTML = signal + '<br><br>' + advice.replace(/\n/g, '<br>');
         }
 
+        // 多币种雷达
+        async function startRadarScan() {
+            const selectedCoins = Array.from(document.querySelectorAll('.coin-chip.selected')).map(chip => chip.textContent);
+
+            if (selectedCoins.length === 0) {
+                alert('请至少选择一个币种');
+                return;
+            }
+
+            const tradeType = document.getElementById('multiTradeType').value;
+
+            document.getElementById('radarLoading').classList.add('active');
+            document.getElementById('radarResults').classList.remove('active');
+
+            const results = [];
+            let completed = 0;
+
+            for (const coin of selectedCoins) {
+                try {
+                    const instId = tradeType === 'SPOT' ? ${coin}-USDT : ${coin}-USDT-SWAP;
+                    const data = await fetchMarketData(instId, tradeType, '1H', 100);
+
+                    const score = calculateTechnicalScore(data.indicators, data.currentPrice);
+                    const signal = getSignalFromScore(score);
+
+                    results.push({
+                        coin, score, signal,
+                        currentPrice: data.currentPrice,
+                        change24h: data.change24h,
+                        indicators: data.indicators
+                    });
+
+                    completed++;
+                    document.getElementById('scanProgress').textContent = ${completed}/${selectedCoins.length};
+                } catch (error) {
+                    console.error(扫描${coin}失败:, error);
+                }
+            }
+
+            results.sort((a, b) => b.score - a.score);
+            displayRadarResults(results);
+
+            document.getElementById('radarLoading').classList.remove('active');
+            document.getElementById('radarResults').classList.add('active');
+        }
+
+        function displayRadarResults(results) {
+            const container = document.getElementById('comparisonGrid');
+
+            container.innerHTML = results.map(result => {
+                const scoreColor = result.score >= 70 ? '
+#28a745' : 
+                                   result.score >= 55 ? '
+#17a2b8' : 
+                                   result.score >= 45 ? '
+#ffc107' : 
+                                   result.score >= 30 ? '
+#fd7e14' : '
+#dc3545';
+
+                return `
+                    <div class="coin-card">
+                        <div class="coin-card-header">
+                            <div class="coin-name">${result.coin}</div>
+                            <div class="coin-signal ${result.signal.class}">${result.signal.text}</div>
+                        </div>
+
+                        <div class="score-container">
+                            <div class="score-circle" style="background: linear-gradient(135deg, ${scoreColor}, ${scoreColor}88); color: white;">
+                                ${result.score}
+                            </div>
+                            <div class="score-label">技术评分</div>
+                        </div>
+
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <div class="data-label">当前价格</div>
+                                <div class="data-value">${formatSignificantDigits(result.currentPrice, 4)}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">24h涨跌</div>
+                                <div class="data-value ${result.change24h >= 0 ? 'positive' : 'negative'}">
+                                    ${result.change24h.toFixed(2)}%
+                                </div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">RSI(14)</div>
+                                <div class="data-value">${result.indicators.rsi14.toFixed(2)}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">MACD</div>
+                                <div class="data-value ${result.indicators.macd.histogram > 0 ? 'positive' : 'negative'}">
+                                    ${formatSignificantDigits(result.indicators.macd.histogram, 4)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
         // 历史回测
         async function startBacktest() {
             const symbol = document.getElementById('backtestSymbol').value.toUpperCase().trim();
