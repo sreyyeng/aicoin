@@ -1712,7 +1712,7 @@
             });
         }
 
-        // AI分析（改进版）
+// AI分析（改进版）
         async function getAIAdvice(data, apiKey, provider) {
             const atr1H = data.indicators1H.atr;
             const atr4H = data.indicators4H.atr;
@@ -1896,6 +1896,29 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
                 console.error('AI API调用失败:', error);
                 throw new Error('AI分析失败: ' + (error.response?.data?.error?.message || error.message));
             }
+        }
+
+        function displayAIAdvice(advice) {
+            const container = document.getElementById('aiAdvice');
+            
+            let signal = '';
+            const lowerAdvice = advice.toLowerCase();
+            
+            if (lowerAdvice.includes('做多') || lowerAdvice.includes('买入')) {
+                signal = '<span class="signal-badge signal-buy">📈 做多</span>';
+            } else if (lowerAdvice.includes('做空') || lowerAdvice.includes('卖出')) {
+                signal = '<span class="signal-badge signal-sell">📉 做空</span>';
+            } else if (lowerAdvice.includes('继续持有') || lowerAdvice.includes('持有')) {
+                signal = '<span class="signal-badge signal-hold">⏸️ 持有</span>';
+            } else if (lowerAdvice.includes('止盈')) {
+                signal = '<span class="signal-badge signal-buy">💰 止盈</span>';
+            } else if (lowerAdvice.includes('止损')) {
+                signal = '<span class="signal-badge signal-sell">🛑 止损</span>';
+            } else if (lowerAdvice.includes('观望')) {
+                signal = '<span class="signal-badge signal-wait">👀 观望</span>';
+            }
+            
+            container.innerHTML = signal + '<br><br>' + advice.replace(/\n/g, '<br>');
         }
 
         // 历史回测
