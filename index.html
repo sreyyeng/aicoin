@@ -1712,58 +1712,152 @@
             });
         }
 
-        // AI分析（优化版）
+        // AI分析（改进版）
         async function getAIAdvice(data, apiKey, provider) {
             const atr1H = data.indicators1H.atr;
             const atr4H = data.indicators4H.atr;
             
-            let prompt = `作为专业交易员，直接给出交易建议，不要客套话。
+            // 计算关键价格位
+            const currentPrice = data.currentPrice;
+            const high24h = data.marketData.high24h;
+            const low24h = data.marketData.low24h;
+            const ema20_1H = data.indicators1H.ema20;
+            const ema50_1H = data.indicators1H.ema50;
+            const ema20_4H = data.indicators4H.ema20;
+            const ema50_4H = data.indicators4H.ema50;
+            
+            let prompt = `你是一名经验丰富的专业交易员，正在用自己的资金交易${data.symbol}。现在需要你做出真实的交易决策。
 
-【市场概况】
-${data.symbol}: ${formatSignificantDigits(data.currentPrice, 4)} | 24H: ${data.marketData.change24h.toFixed(2)}%
+=== 市场数据 ===
+当前价格: ${formatSignificantDigits(currentPrice, 4)} USDT
+24H变化: ${data.marketData.change24h.toFixed(2)}%
+24H高点: ${formatSignificantDigits(high24h, 4)} | 低点: ${formatSignificantDigits(low24h, 4)}
 ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigits(atr4H, 4)}
 
-【1H指标】EMA20: ${formatSignificantDigits(data.indicators1H.ema20, 4)} | EMA50: ${formatSignificantDigits(data.indicators1H.ema50, 4)} | RSI: ${data.indicators1H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators1H.macd.histogram, 4)}
+=== 技术指标 ===
+【1小时级别】
+- EMA20: ${formatSignificantDigits(ema20_1H, 4)} | EMA50: ${formatSignificantDigits(ema50_1H, 4)}
+- RSI: ${data.indicators1H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators1H.macd.histogram, 4)}
 
-【4H指标】EMA20: ${formatSignificantDigits(data.indicators4H.ema20, 4)} | EMA50: ${formatSignificantDigits(data.indicators4H.ema50, 4)} | RSI: ${data.indicators4H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators4H.macd.histogram, 4)}
+【4小时级别】
+- EMA20: ${formatSignificantDigits(ema20_4H, 4)} | EMA50: ${formatSignificantDigits(ema50_4H, 4)}
+- RSI: ${data.indicators4H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators4H.macd.histogram, 4)}
+
+=== 近期价格行为 ===
+最近20根1H K线收盘价: ${data.recentPrices1H.slice(-5).map(p => formatSignificantDigits(p, 4)).join(', ')}...
+最近10根4H K线收盘价: ${data.recentPrices4H.slice(-3).map(p => formatSignificantDigits(p, 4)).join(', ')}...
 `;
 
             if (data.position.status !== 'none') {
-                const posType = data.position.status === 'long' ? '多' : '空';
+                const posType = data.position.status === 'long' ? '多头' : '空头';
                 const pnl = data.position.pnlPercent.toFixed(2);
+                const entryPrice = data.position.entryPrice;
                 
                 prompt += `
-【持仓】${posType}单 | 开仓: ${formatSignificantDigits(data.position.entryPrice, 4)} | 当前: ${formatSignificantDigits(data.currentPrice, 4)} | 盈亏: ${pnl}%
+=== 当前持仓 ===
+方向: ${posType}
+开仓价: ${formatSignificantDigits(entryPrice, 4)} USDT
+持仓: ${data.position.size} ${data.symbol}
+杠杆: ${data.position.leverage}x
+浮动盈亏: ${pnl}%
 
-直接说：继续持有/止盈/止损（选一个，必须明确）
+作为交易员，你现在必须做出决策：
 
-然后给出：
-1. 三级止盈（保守/中性/激进，价格间隔3-5倍ATR）
-2. 止损价（1.5-2倍ATR，保护本金或利润）
-3. 核心理由（1H和4H趋势是否一致？关键位在哪？）`;
+【分析步骤】
+1. 趋势判断：1H和4H的EMA排列是否一致？当前处于什么趋势阶段？
+2. 动能分析：MACD和RSI显示动能是增强还是衰减？
+3. 关键价位：
+   - 向上压力位：24H高点${formatSignificantDigits(high24h, 4)}、4H EMA20/50
+   - 向下支撑位：24H低点${formatSignificantDigits(low24h, 4)}、1H EMA20/50
+4. 盈亏情况：当前${pnl}%的浮盈/浮亏是否应该兑现或止损？
+
+【决策】（必须明确选一个）
+□ 继续持有
+□ 部分止盈
+□ 全部止盈
+□ 止损离场
+□ 加仓
+
+【执行计划】
+三级止盈方案（结合关键压力位和ATR）：
+- 第一目标（30%仓位）: [价格] - 理由：[关键位置/ATR倍数]
+- 第二目标（40%仓位）: [价格] - 理由：[关键位置/ATR倍数]  
+- 第三目标（30%仓位）: [价格] - 理由：[关键位置/ATR倍数]
+
+止损位：[价格] - 必须说明是基于什么（关键支撑位/1.5-2倍ATR/保护利润）
+
+【核心逻辑】（1-2句话）
+为什么做这个决策？多空共振？趋势延续？还是背离信号？
+`;
             } else {
                 prompt += `
-【未持仓】当前: ${formatSignificantDigits(data.currentPrice, 4)}
+=== 当前状态 ===
+未持仓，正在寻找入场机会。
 
-直接说：做多/做空/观望（选一个，必须明确，不要模棱两可）
+作为交易员，你现在必须评估是否入场：
 
-如果建议入场，给出：
-1. 入场价格区间（当前价±1-2倍ATR，不要离太远）
-2. 三级止盈（保守/中性/激进，间隔3-5倍ATR）
-3. 止损价（1.5-2倍ATR）
-4. 核心理由（多空共振？背离？趋势延续？用1句话说清楚）
+【分析步骤】
+1. 多空判断：
+   - 1H级别：价格vs EMA20 vs EMA50的位置关系
+   - 4H级别：价格vs EMA20 vs EMA50的位置关系
+   - 双周期是否共振？
 
-如果观望，说明等待什么信号（突破/回调/指标修复），给出具体价格。`;
+2. 动能确认：
+   - RSI是否超买/超卖/中性？
+   - MACD柱是否放大/收缩？
+   - 价格动能是否与指标背离？
+
+3. 关键价位识别：
+   - 压力位：24H高点${formatSignificantDigits(high24h, 4)}、EMA均线
+   - 支撑位：24H低点${formatSignificantDigits(low24h, 4)}、EMA均线
+   - 当前价格离哪个关键位更近？
+
+4. 风险收益比：
+   - 入场到第一目标的空间是否足够？
+   - 止损距离是否合理（不超过2倍ATR）？
+
+【决策】（必须明确选一个）
+□ 做多
+□ 做空
+□ 观望等待
+
+如果【做多】或【做空】，提供：
+
+入场策略：
+- 理想入场区间：[价格1] - [价格2]（基于回调/突破+ATR）
+- 入场触发条件：突破某个价位？还是回踩某个支撑？
+
+仓位管理：
+- 建议仓位：轻仓试探(25%) / 中等仓位(50%) / 重仓(75%)
+- 理由：根据信号强度和趋势确定性
+
+三级止盈（结合关键压力位/支撑位和ATR）：
+- 保守目标（30%）: [价格] - [压力位/支撑位 + ATR倍数]
+- 中性目标（40%）: [价格] - [下一个关键位 + ATR倍数]
+- 激进目标（30%）: [价格] - [重要心理关口 + ATR倍数]
+
+止损位：[价格] - 基于[关键支撑/压力位]或[1.5-2倍ATR]
+
+如果【观望】，说明：
+- 等待什么信号？（突破、回调、指标修复）
+- 关注哪个价位？（突破做多 / 跌破做空）
+- 具体触发条件
+
+【核心逻辑】（2-3句话）
+为什么做多/做空/观望？多空趋势如何？关键位在哪？1H和4H是否共振？
+`;
             }
 
             prompt += `
-
-要求：
-- 不说废话（风控/DYOR等客套话删掉）
-- 价格必须具体，基于ATR倍数计算
-- 观点鲜明，不做好好先生
-- 三级止盈拉开距离，避免频繁交易
-- 用专业术语，简洁有力`;
+【回复要求】
+1. 像专业交易员一样思考和决策，不是建议者而是执行者
+2. 价格必须具体且合理：
+   - 止盈位要考虑关键压力位/支撑位，不能只看ATR
+   - 止损位要保护本金或利润，设在关键位附近
+3. 三级止盈间隔要够大（3-5倍ATR或关键位之间的距离）
+4. 说明每个价位的依据（是EMA？是24H高低点？还是ATR倍数？）
+5. 不要客套话，直接给决策和理由
+6. 要体现对市场结构的理解（趋势、支撑压力、动能）`;
 
             try {
                 let apiUrl, modelName, headers;
@@ -1789,12 +1883,12 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
                     messages: [
                         {
                             role: 'system',
-                            content: '你是顶尖交易员，擅长多时间框架分析，给建议直接、鲜明、不拖泥带水。'
+                            content: '你是一名顶尖的加密货币交易员，拥有10年实战经验。你擅长多时间框架分析、识别关键价格位、判断市场结构。你用自己的资金交易，每个决策都是真金白银。你的风格：果断、专业、精准，从不模棱两可。'
                         },
                         { role: 'user', content: prompt }
                     ],
                     temperature: 0.7,
-                    max_tokens: 1500
+                    max_tokens: 2000
                 }, { headers });
 
                 return response.data.choices[0].message.content;
@@ -1802,125 +1896,6 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
                 console.error('AI API调用失败:', error);
                 throw new Error('AI分析失败: ' + (error.response?.data?.error?.message || error.message));
             }
-        }
-
-        function displayAIAdvice(advice) {
-            const container = document.getElementById('aiAdvice');
-            
-            let signal = '';
-            const lowerAdvice = advice.toLowerCase();
-            
-            if (lowerAdvice.includes('做多') || lowerAdvice.includes('买入')) {
-                signal = '<span class="signal-badge signal-buy">📈 做多</span>';
-            } else if (lowerAdvice.includes('做空') || lowerAdvice.includes('卖出')) {
-                signal = '<span class="signal-badge signal-sell">📉 做空</span>';
-            } else if (lowerAdvice.includes('继续持有') || lowerAdvice.includes('持有')) {
-                signal = '<span class="signal-badge signal-hold">⏸️ 持有</span>';
-            } else if (lowerAdvice.includes('止盈')) {
-                signal = '<span class="signal-badge signal-buy">💰 止盈</span>';
-            } else if (lowerAdvice.includes('止损')) {
-                signal = '<span class="signal-badge signal-sell">🛑 止损</span>';
-            } else if (lowerAdvice.includes('观望')) {
-                signal = '<span class="signal-badge signal-wait">👀 观望</span>';
-            }
-            
-            container.innerHTML = signal + '<br><br>' + advice.replace(/\n/g, '<br>');
-        }
-
-        // 多币种雷达
-        async function startRadarScan() {
-            const selectedCoins = Array.from(document.querySelectorAll('.coin-chip.selected')).map(chip => chip.textContent);
-            
-            if (selectedCoins.length === 0) {
-                alert('请至少选择一个币种');
-                return;
-            }
-
-            const tradeType = document.getElementById('multiTradeType').value;
-
-            document.getElementById('radarLoading').classList.add('active');
-            document.getElementById('radarResults').classList.remove('active');
-
-            const results = [];
-            let completed = 0;
-
-            for (const coin of selectedCoins) {
-                try {
-                    const instId = tradeType === 'SPOT' ? `${coin}-USDT` : `${coin}-USDT-SWAP`;
-                    const data = await fetchMarketData(instId, tradeType, '1H', 100);
-                    
-                    const score = calculateTechnicalScore(data.indicators, data.currentPrice);
-                    const signal = getSignalFromScore(score);
-                    
-                    results.push({
-                        coin, score, signal,
-                        currentPrice: data.currentPrice,
-                        change24h: data.change24h,
-                        indicators: data.indicators
-                    });
-
-                    completed++;
-                    document.getElementById('scanProgress').textContent = `${completed}/${selectedCoins.length}`;
-                } catch (error) {
-                    console.error(`扫描${coin}失败:`, error);
-                }
-            }
-
-            results.sort((a, b) => b.score - a.score);
-            displayRadarResults(results);
-
-            document.getElementById('radarLoading').classList.remove('active');
-            document.getElementById('radarResults').classList.add('active');
-        }
-
-        function displayRadarResults(results) {
-            const container = document.getElementById('comparisonGrid');
-            
-            container.innerHTML = results.map(result => {
-                const scoreColor = result.score >= 70 ? '#28a745' : 
-                                   result.score >= 55 ? '#17a2b8' : 
-                                   result.score >= 45 ? '#ffc107' : 
-                                   result.score >= 30 ? '#fd7e14' : '#dc3545';
-                
-                return `
-                    <div class="coin-card">
-                        <div class="coin-card-header">
-                            <div class="coin-name">${result.coin}</div>
-                            <div class="coin-signal ${result.signal.class}">${result.signal.text}</div>
-                        </div>
-                        
-                        <div class="score-container">
-                            <div class="score-circle" style="background: linear-gradient(135deg, ${scoreColor}, ${scoreColor}88); color: white;">
-                                ${result.score}
-                            </div>
-                            <div class="score-label">技术评分</div>
-                        </div>
-                        
-                        <div class="data-grid">
-                            <div class="data-item">
-                                <div class="data-label">当前价格</div>
-                                <div class="data-value">${formatSignificantDigits(result.currentPrice, 4)}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">24h涨跌</div>
-                                <div class="data-value ${result.change24h >= 0 ? 'positive' : 'negative'}">
-                                    ${result.change24h.toFixed(2)}%
-                                </div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">RSI(14)</div>
-                                <div class="data-value">${result.indicators.rsi14.toFixed(2)}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">MACD</div>
-                                <div class="data-value ${result.indicators.macd.histogram > 0 ? 'positive' : 'negative'}">
-                                    ${formatSignificantDigits(result.indicators.macd.histogram, 4)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
         // 历史回测
