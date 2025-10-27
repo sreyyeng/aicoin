@@ -1712,7 +1712,7 @@
             });
         }
 
-// AI分析（改进版）
+        // AI分析（改进版）
         async function getAIAdvice(data, apiKey, provider) {
             const atr1H = data.indicators1H.atr;
             const atr4H = data.indicators4H.atr;
@@ -1726,7 +1726,7 @@
             const ema20_4H = data.indicators4H.ema20;
             const ema50_4H = data.indicators4H.ema50;
             
-            let prompt = `你是一名经验丰富的专业交易员，正在用自己的资金交易${data.symbol}。现在需要你做出真实的交易决策。
+            let prompt = `你是一名经验丰富的激进的专业交易员，正在用自己的资金交易${data.symbol}。现在需要你做出真实的交易决策，语言简练，不要说客套话
 
 === 市场数据 ===
 当前价格: ${formatSignificantDigits(currentPrice, 4)} USDT
@@ -1794,7 +1794,7 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
 === 当前状态 ===
 未持仓，正在寻找入场机会。
 
-作为交易员，你现在必须评估是否入场：
+作为交易员，你必须评估当前价格是否应该入场：
 
 【分析步骤】
 1. 多空判断：
@@ -1824,12 +1824,7 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
 如果【做多】或【做空】，提供：
 
 入场策略：
-- 理想入场区间：[价格1] - [价格2]（基于回调/突破+ATR）
-- 入场触发条件：突破某个价位？还是回踩某个支撑？
-
-仓位管理：
-- 建议仓位：轻仓试探(25%) / 中等仓位(50%) / 重仓(75%)
-- 理由：根据信号强度和趋势确定性
+- 当前价格的入场区间：[价格1] - [价格2]（基于回调/突破+ATR）
 
 三级止盈（结合关键压力位/支撑位和ATR）：
 - 保守目标（30%）: [价格] - [压力位/支撑位 + ATR倍数]
@@ -1850,8 +1845,8 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
 
             prompt += `
 【回复要求】
-1. 像专业交易员一样思考和决策，不是建议者而是执行者
-2. 价格必须具体且合理：
+1. 像一个激进的专业交易员一样思考和决策
+2. 价格必须具体且合理，基于当前价格进行决策：
    - 止盈位要考虑关键压力位/支撑位，不能只看ATR
    - 止损位要保护本金或利润，设在关键位附近
 3. 三级止盈间隔要够大（3-5倍ATR或关键位之间的距离）
@@ -1883,7 +1878,7 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
                     messages: [
                         {
                             role: 'system',
-                            content: '你是一名顶尖的加密货币交易员，拥有10年实战经验。你擅长多时间框架分析、识别关键价格位、判断市场结构。你用自己的资金交易，每个决策都是真金白银。你的风格：果断、专业、精准，从不模棱两可。'
+                            content: '你是一名顶尖的加密货币交易员，拥有10年实战经验。你擅长多时间框架分析、识别关键价格位、判断市场结构。你用自己的资金交易，每个决策都是真金白银。你的风格：果断、精准、激进，从不模棱两可。'
                         },
                         { role: 'user', content: prompt }
                     ],
@@ -1924,7 +1919,7 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
         // 多币种雷达
         async function startRadarScan() {
             const selectedCoins = Array.from(document.querySelectorAll('.coin-chip.selected')).map(chip => chip.textContent);
-
+            
             if (selectedCoins.length === 0) {
                 alert('请至少选择一个币种');
                 return;
@@ -1940,12 +1935,12 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
 
             for (const coin of selectedCoins) {
                 try {
-                    const instId = tradeType === 'SPOT' ? ${coin}-USDT : ${coin}-USDT-SWAP;
+                    const instId = tradeType === 'SPOT' ? `${coin}-USDT` : `${coin}-USDT-SWAP`;
                     const data = await fetchMarketData(instId, tradeType, '1H', 100);
-
+                    
                     const score = calculateTechnicalScore(data.indicators, data.currentPrice);
                     const signal = getSignalFromScore(score);
-
+                    
                     results.push({
                         coin, score, signal,
                         currentPrice: data.currentPrice,
@@ -1954,9 +1949,9 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
                     });
 
                     completed++;
-                    document.getElementById('scanProgress').textContent = ${completed}/${selectedCoins.length};
+                    document.getElementById('scanProgress').textContent = `${completed}/${selectedCoins.length}`;
                 } catch (error) {
-                    console.error(扫描${coin}失败:, error);
+                    console.error(`扫描${coin}失败:`, error);
                 }
             }
 
@@ -1969,32 +1964,27 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
 
         function displayRadarResults(results) {
             const container = document.getElementById('comparisonGrid');
-
+            
             container.innerHTML = results.map(result => {
-                const scoreColor = result.score >= 70 ? '
-#28a745' : 
-                                   result.score >= 55 ? '
-#17a2b8' : 
-                                   result.score >= 45 ? '
-#ffc107' : 
-                                   result.score >= 30 ? '
-#fd7e14' : '
-#dc3545';
-
+                const scoreColor = result.score >= 70 ? '#28a745' : 
+                                   result.score >= 55 ? '#17a2b8' : 
+                                   result.score >= 45 ? '#ffc107' : 
+                                   result.score >= 30 ? '#fd7e14' : '#dc3545';
+                
                 return `
                     <div class="coin-card">
                         <div class="coin-card-header">
                             <div class="coin-name">${result.coin}</div>
                             <div class="coin-signal ${result.signal.class}">${result.signal.text}</div>
                         </div>
-
+                        
                         <div class="score-container">
                             <div class="score-circle" style="background: linear-gradient(135deg, ${scoreColor}, ${scoreColor}88); color: white;">
                                 ${result.score}
                             </div>
                             <div class="score-label">技术评分</div>
                         </div>
-
+                        
                         <div class="data-grid">
                             <div class="data-item">
                                 <div class="data-label">当前价格</div>
@@ -2021,7 +2011,7 @@ ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigi
                 `;
             }).join('');
         }
-        
+
         // 历史回测
         async function startBacktest() {
             const symbol = document.getElementById('backtestSymbol').value.toUpperCase().trim();
