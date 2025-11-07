@@ -770,196 +770,85 @@
                 padding: 1rem;
             }
 
-            /* 移动端header优化 */
             .header {
-                padding: 0.75rem 0;
-                position: relative; /* 改为相对定位，不再固定 */
+                padding: 1rem 0;
             }
 
             .header-content {
-                gap: 0.5rem;
-                padding: 0 1rem;
-                flex-direction: row;
-                justify-content: space-between;
-            }
-
-            .logo {
-                gap: 0.5rem;
-            }
-
-            .logo-icon {
-                font-size: 1.5rem;
-            }
-
-            .logo-text h1 {
-                font-size: 1.1rem;
-            }
-
-            .logo-text p {
-                display: none; /* 隐藏副标题 */
-            }
-
-            .header-right {
-                flex: 0;
-            }
-
-            .header-stats {
-                gap: 0.5rem;
-                flex-wrap: nowrap;
-            }
-
-            .stat-item {
-                min-width: auto;
-            }
-
-            .stat-label {
-                font-size: 0.65rem;
-            }
-
-            .stat-value {
-                font-size: 0.9rem;
-            }
-
-            .last-update {
-                display: none; /* 移动端隐藏更新时间 */
-            }
-
-            /* 移动端隐藏友情链接 */
-            .quick-links {
-                display: none;
-            }
-
-            /* 移动端隐藏每日一句 */
-            .daily-quote {
-                display: none;
-            }
-
-            .controls {
-                padding: 1rem;
-            }
-
-            .controls-title {
-                font-size: 0.875rem;
-            }
-
-            .controls-content {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-
-            .btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.8rem;
-                flex: 1;
-                min-width: calc(50% - 0.25rem);
-                justify-content: center;
-            }
-
-            .coin-card {
-                border-radius: 0.75rem;
-            }
-
-            .coin-header {
-                padding: 1rem;
                 gap: 0.75rem;
+                padding: 0 1rem;
             }
 
-            .coin-icon {
-                width: 40px;
-                height: 40px;
+            .logo h1 {
                 font-size: 1.25rem;
             }
 
-            .coin-symbol {
-                font-size: 1.1rem;
+            .header-stats {
+                flex-direction: row;
+                gap: 1rem;
+                flex-wrap: wrap;
             }
 
-            .coin-name {
-                font-size: 0.8rem;
+            .stat-item {
+                flex: 1;
+                min-width: 100px;
+            }
+
+            .last-update {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .quick-links {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+            }
+
+            .quick-links-label {
+                border-right: none;
+                border-bottom: 2px solid var(--border);
+                padding-bottom: 0.5rem;
+                text-align: center;
+            }
+
+            .link-item {
+                justify-content: center;
+            }
+
+            .daily-quote {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+
+            .quote-icon {
+                font-size: 1.5rem;
+            }
+
+            .quote-text {
+                font-size: 0.95rem;
+            }
+
+            .controls-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
             }
 
             .coin-metrics {
                 grid-template-columns: 1fr;
-                gap: 0.75rem;
-            }
-
-            .metric {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-            .metric-label {
-                font-size: 0.7rem;
-            }
-
-            .metric-value {
-                font-size: 1rem;
-                text-align: right;
-            }
-
-            .metric-value.price-highlight {
-                font-size: 1.25rem;
-            }
-
-            .expand-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.875rem;
-            }
-
-            .details-content {
-                padding: 1rem;
-            }
-
-            .timeframe-selector {
-                gap: 0.35rem;
-            }
-
-            .timeframe-btn {
-                padding: 0.4rem 0.75rem;
-                font-size: 0.8rem;
-            }
-
-            .chart-container {
-                padding: 0.75rem;
-                min-height: 350px;
-            }
-
-            .chart-title {
-                font-size: 0.875rem;
-                margin-bottom: 0.75rem;
-            }
-
-            .chart-canvas {
-                height: 280px;
             }
 
             .indicators-grid {
                 grid-template-columns: 1fr;
-                gap: 0.75rem;
             }
 
-            .indicator-card {
-                padding: 0.75rem;
-            }
-
-            .indicator-name {
-                font-size: 0.8rem;
-            }
-
-            .indicator-value {
-                font-size: 1.25rem;
-            }
-
-            .indicator-desc {
-                font-size: 0.7rem;
-            }
-
-            .indicator-badge {
-                font-size: 0.65rem;
-                padding: 0.2rem 0.5rem;
+            .chart-canvas {
+                height: 300px;
             }
         }
 
