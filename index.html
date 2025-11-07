@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI加密货币交易顾问 Pro v2.3</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>加密货币实时监控 | Crypto Monitor Pro</title>
+    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,1397 +12,1006 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
+            line-height: 1.6;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px var(--shadow);
         }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .auto-refresh-badge {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 20px;
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(10px);
+            gap: 0.75rem;
         }
 
-        .auto-refresh-badge.active {
-            background: rgba(40, 167, 69, 0.3);
+        .logo-icon {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .pulse {
-            width: 10px;
-            height: 10px;
-            background: #28a745;
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .header-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Quick Links */
+        .quick-links {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .quick-links-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding-right: 0.5rem;
+            border-right: 2px solid var(--border);
+        }
+
+        .link-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(51, 65, 85, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .link-item:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .link-icon {
+            font-size: 1.1rem;
+        }
+
+        /* Daily Quote */
+        .daily-quote {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-top: 1px solid var(--border);
+        }
+
+        .quote-icon {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
+        .quote-content {
+            flex: 1;
+        }
+
+        .quote-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .quote-author {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .last-update {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 999px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+            50% { opacity: 0.5; transform: scale(1.1); }
         }
 
-        .tab-container {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
-        .tab {
-            flex: 1;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
+        /* Controls */
+        .controls {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .controls-title {
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 1.1em;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .tab:hover {
-            background: #e9ecef;
-        }
-
-        .tab.active {
-            background: white;
-            border-bottom-color: #667eea;
-            color: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .section-title {
-            font-size: 1.5em;
-            color: #667eea;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
+        .controls-content {
             display: flex;
-            justify-content: space-between;
+            gap: 1rem;
             align-items: center;
-        }
-
-        .last-update {
-            font-size: 0.7em;
-            color: #6c757d;
-            font-weight: normal;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .position-details {
-            display: none;
-            animation: fadeIn 0.3s;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 15px 30px;
-            font-size: 1.1em;
-            font-weight: 600;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 10px;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
+            transition: all 0.3s ease;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            flex: 1;
-            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
-        .btn-primary:hover:not(:disabled) {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
         }
 
         .btn-secondary {
-            background: #6c757d;
-            color: white;
+            background: rgba(51, 65, 85, 0.8);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .btn-success:hover:not(:disabled) {
-            background: #218838;
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #333;
-        }
-
-        .btn-warning:hover {
-            background: #e0a800;
+            background: rgba(71, 85, 105, 0.8);
+            transform: translateY(-2px);
         }
 
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none !important;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .results {
-            display: none;
-        }
-
-        .results.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        .data-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .data-grid {
+        /* Coin List */
+        .coin-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .data-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-            transition: all 0.3s;
-        }
-
-        .data-item.updating {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-        }
-
-        .data-label {
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .data-value {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .data-value.positive {
-            color: #28a745;
-        }
-
-        .data-value.negative {
-            color: #dc3545;
-        }
-
-        .ai-advice {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 30px;
-            border: 3px solid #667eea;
-        }
-
-        .ai-advice-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .ai-icon {
-            font-size: 2.5em;
-        }
-
-        .ai-advice-title {
-            font-size: 1.8em;
-            color: #667eea;
-            font-weight: 700;
-        }
-
-        .advice-content {
-            line-height: 1.8;
-            font-size: 1.05em;
-            color: #333;
-            white-space: pre-wrap;
-        }
-
-        .signal-badge {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 1.1em;
-            margin: 10px 0;
-        }
-
-        .signal-buy {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #28a745;
-        }
-
-        .signal-sell {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #dc3545;
-        }
-
-        .signal-hold {
-            background: #fff3cd;
-            color: #856404;
-            border: 2px solid #ffc107;
-        }
-
-        .signal-wait {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 2px solid #17a2b8;
-        }
-
-        .chart-container {
-            margin: 30px 0;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .chart-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .chart-tab {
-            padding: 10px 20px;
-            background: #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .chart-tab.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .config-section {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .config-title {
-            font-weight: 700;
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .coin-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .coin-chip {
-            padding: 10px 20px;
-            background: #e9ecef;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-
-        .coin-chip:hover {
-            background: #dee2e6;
-        }
-
-        .coin-chip.selected {
-            background: #667eea;
-            color: white;
-            border-color: #5568d3;
-        }
-
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            gap: 1.5rem;
         }
 
         .coin-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px var(--shadow);
         }
 
         .coin-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--shadow);
+            border-color: rgba(99, 102, 241, 0.5);
         }
 
-        .coin-card-header {
-            display: flex;
-            justify-content: space-between;
+        .coin-header {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
         }
 
-        .coin-name {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #667eea;
+        .coin-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .coin-signal {
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-
-        .score-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .score-circle {
-            width: 100px;
-            height: 100px;
+        .coin-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2em;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin: 0 auto;
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
-        .score-label {
-            font-size: 0.8em;
-            color: #6c757d;
-            margin-top: 10px;
+        .coin-name-group {
+            display: flex;
+            flex-direction: column;
         }
 
-        .backtest-summary {
+        .coin-symbol {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .coin-name {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .coin-metrics {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1.5rem;
         }
 
-        .backtest-metric {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .metric {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
-        .backtest-metric-label {
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-bottom: 8px;
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .backtest-metric-value {
-            font-size: 1.8em;
+        .metric-value {
+            font-size: 1.125rem;
             font-weight: 700;
+            color: var(--text-primary);
         }
 
-        .trade-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 20px;
+        /* 突出显示当前价格 */
+        .metric-value.price-highlight {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
         }
 
-        .trade-item {
-            background: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+        .metric-value.positive {
+            color: var(--success);
+        }
+
+        .metric-value.negative {
+            color: var(--danger);
+        }
+
+        /* 高低价格带箭头 */
+        .metric-value.high-price {
+            color: var(--success);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 0.25rem;
         }
 
-        .trade-item.profit {
-            border-left-color: #28a745;
-            background: #f8fff9;
+        .metric-value.high-price::before {
+            content: '↑';
+            font-size: 1.25rem;
         }
 
-        .trade-item.loss {
-            border-left-color: #dc3545;
-            background: #fff8f8;
+        .metric-value.low-price {
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
-        .refresh-control {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .metric-value.low-price::before {
+            content: '↓';
+            font-size: 1.25rem;
         }
 
-        .refresh-control-title {
+        .expand-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.75rem;
+            color: var(--primary);
             font-weight: 600;
-            margin-bottom: 15px;
-            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .refresh-settings {
+        .expand-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+        }
+
+        .expand-icon {
+            transition: transform 0.3s;
+        }
+
+        .coin-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Details Section */
+        .coin-details {
+            display: none;
+            border-top: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .coin-card.expanded .coin-details {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 2000px;
+            }
+        }
+
+        .details-content {
+            padding: 2rem;
+        }
+
+        /* Timeframe Selector */
+        .timeframe-selector {
             display: flex;
-            gap: 20px;
-            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
 
-        .switch-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
+        .timeframe-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 600;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #28a745;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .ai-provider-selector {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border: 2px solid #e9ecef;
-        }
-
-        .provider-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 8px;
             transition: all 0.3s;
         }
 
-        .provider-option:hover {
-            background: #f8f9fa;
+        .timeframe-btn:hover {
+            background: rgba(71, 85, 105, 0.5);
         }
 
-        .provider-option input[type="radio"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
+        .timeframe-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
-        .provider-label {
+        /* Chart Container */
+        .chart-container {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .chart-title {
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 1.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .provider-desc {
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-left: 30px;
+        .chart-canvas {
+            width: 100%;
+            height: 450px;
+        }
+
+        /* Indicators Grid */
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .indicator-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+
+        .indicator-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .indicator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .indicator-name {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .indicator-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* RSI 指标状态标签 */
+        .indicator-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 0.5rem;
+        }
+
+        .indicator-badge.oversold {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .indicator-badge.overbought {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .indicator-badge.neutral {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-muted);
+            border: 1px solid var(--text-muted);
+        }
+
+        /* RSI 数值颜色 */
+        .indicator-value.rsi-oversold {
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .indicator-value.rsi-overbought {
+            color: var(--danger);
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .indicator-value.rsi-neutral {
+            color: var(--text-secondary);
+        }
+
+        .indicator-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            box-shadow: 0 8px 24px var(--shadow);
+            z-index: 2000;
+            animation: slideInUp 0.3s ease-out;
+            max-width: 400px;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .quick-links {
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+
+            .daily-quote {
+                padding: 1rem;
+            }
+
+            .coin-header {
+                grid-template-columns: 1fr;
+            }
+
+            .coin-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .expand-btn {
+                justify-self: stretch;
+                justify-content: center;
+            }
         }
 
         @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
+            .container {
+                padding: 1rem;
             }
 
-            .button-group {
-                flex-direction: column;
+            .header {
+                padding: 1rem 0;
             }
 
-            .btn {
+            .header-content {
+                gap: 0.75rem;
+                padding: 0 1rem;
+            }
+
+            .logo h1 {
+                font-size: 1.25rem;
+            }
+
+            .header-stats {
+                flex-direction: row;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .stat-item {
+                flex: 1;
+                min-width: 100px;
+            }
+
+            .last-update {
                 width: 100%;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .tab {
-                font-size: 0.9em;
-                padding: 15px 10px;
-            }
-
-            .auto-refresh-badge {
-                position: static;
-                margin-top: 10px;
                 justify-content: center;
             }
 
-            .comparison-grid {
+            .quick-links {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+            }
+
+            .quick-links-label {
+                border-right: none;
+                border-bottom: 2px solid var(--border);
+                padding-bottom: 0.5rem;
+                text-align: center;
+            }
+
+            .link-item {
+                justify-content: center;
+            }
+
+            .daily-quote {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+
+            .quote-icon {
+                font-size: 1.5rem;
+            }
+
+            .quote-text {
+                font-size: 0.95rem;
+            }
+
+            .controls-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .coin-metrics {
                 grid-template-columns: 1fr;
             }
+
+            .indicators-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-canvas {
+                height: 300px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border);
         }
     </style>
 </head>
 <body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">₿</span>
+                <div class="logo-text">
+                    <h1>Crypto Monitor Pro</h1>
+                    <p>实时加密货币监控系统</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">监控币种</div>
+                        <div class="stat-value" id="coinCount">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">总市值</div>
+                        <div class="stat-value" id="totalMarketCap">-</div>
+                    </div>
+                    <div class="last-update">
+                        <span class="pulse-dot"></span>
+                        <span id="lastUpdateTime">等待更新...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 友情链接 -->
+        <div class="quick-links">
+            <div class="quick-links-label">📊 快捷导航</div>
+            <a href="https://gushitong.baidu.com/?quotationMarket=ab&moduleName=quotation" target="_blank" class="link-item">
+                <span class="link-icon">📈</span>
+                <span>全球股市一览</span>
+            </a>
+            <a href="https://www.jin10.com/" target="_blank" class="link-item">
+                <span class="link-icon">⚡</span>
+                <span>金十快讯</span>
+            </a>
+            <a href="https://s.weibo.com/top/summary?cate=realtimehot" target="_blank" class="link-item">
+                <span class="link-icon">🔥</span>
+                <span>微博热搜榜</span>
+            </a>
+        </div>
+        
+        <!-- 每日一句 -->
+        <div class="daily-quote" id="dailyQuote">
+            <div class="quote-icon">💬</div>
+            <div class="quote-content">
+                <div class="quote-text" id="quoteText">加载中...</div>
+                <div class="quote-author" id="quoteAuthor"></div>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
-        <div class="header">
-            <h1>🤖 AI加密货币交易顾问 Pro v2.3</h1>
-            <p>双AI模型 | 多级止盈止损 | 精准建议 | 自动更新</p>
-            <div class="auto-refresh-badge" id="autoRefreshBadge">
-                <div class="pulse"></div>
-                <span id="refreshStatus">自动更新已停止</span>
+        <div class="controls">
+            <div class="controls-title">🎯 排序方式</div>
+            <div class="controls-content">
+                <button class="btn btn-primary" id="sortByGain">
+                    <span>📈</span>
+                    <span>涨幅最高</span>
+                </button>
+                <button class="btn btn-secondary" id="sortByLoss">
+                    <span>📉</span>
+                    <span>跌幅最大</span>
+                </button>
+                <button class="btn btn-secondary" id="sortByTurnover">
+                    <span>💰</span>
+                    <span>成交额最大</span>
+                </button>
+                <button class="btn btn-secondary" id="sortByName">
+                    <span>🔤</span>
+                    <span>按名称排序</span>
+                </button>
+                <button class="btn btn-secondary" id="expandAllBtn">
+                    <span>📊</span>
+                    <span>展开全部</span>
+                </button>
+                <button class="btn btn-secondary" id="collapseAllBtn">
+                    <span>📋</span>
+                    <span>收起全部</span>
+                </button>
             </div>
         </div>
 
-        <div class="tab-container">
-            <div class="tab active" onclick="switchTab('single')">
-                📊 单币种分析
-            </div>
-            <div class="tab" onclick="switchTab('multi')">
-                🔍 多币种雷达
-            </div>
-            <div class="tab" onclick="switchTab('backtest')">
-                📈 历史回测
-            </div>
-        </div>
-
-        <!-- 单币种分析 -->
-        <div id="tab-single" class="tab-content active">
-            <div class="section">
-                <div class="section-title">⚙️ API配置</div>
-                <div class="config-section">
-                    <div class="config-title">📌 使用说明</div>
-                    <p>选择AI服务商并输入API Key。支持DeepSeek和阿里云千问。</p>
-                </div>
-
-                <!-- AI服务商选择 -->
-                <div class="ai-provider-selector">
-                    <div class="provider-option" onclick="selectProvider('deepseek')">
-                        <input type="radio" name="aiProvider" id="providerDeepseek" value="deepseek" checked>
-                        <label for="providerDeepseek" class="provider-label">🔵 DeepSeek</label>
-                    </div>
-                    <div class="provider-desc">推理能力强，成本低（¥0.001/千tokens）</div>
-                    
-                    <div class="provider-option" onclick="selectProvider('qwen')" style="margin-top: 10px;">
-                        <input type="radio" name="aiProvider" id="providerQwen" value="qwen">
-                        <label for="providerQwen" class="provider-label">🟠 阿里云千问</label>
-                    </div>
-                    <div class="provider-desc">中文优化，响应快（¥0.002/千tokens）</div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>
-                            <span id="apiKeyLabel">DeepSeek API Key</span>
-                        </label>
-                        <input type="password" id="apiKey" placeholder="必填：sk-xxxxxx" required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">📊 交易配置</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>币种代码</label>
-                        <input type="text" id="symbol" placeholder="例如: BTC" value="BTC" required>
-                    </div>
-                    <div class="form-group">
-                        <label>交易类型</label>
-                        <select id="tradeType">
-                            <option value="SWAP">永续合约</option>
-                            <option value="SPOT">现货</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>持仓状态</label>
-                        <select id="positionStatus" onchange="togglePositionDetails()">
-                            <option value="none">未持仓</option>
-                            <option value="long">已持仓 - 做多</option>
-                            <option value="short">已持仓 - 做空</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="positionDetails" class="position-details">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>开仓价格 (USDT)</label>
-                            <input type="number" id="entryPrice" placeholder="例如: 42000" step="0.0001">
-                        </div>
-                        <div class="form-group">
-                            <label>持仓数量</label>
-                            <input type="number" id="positionSize" placeholder="例如: 0.5" step="0.0001">
-                        </div>
-                        <div class="form-group">
-                            <label>杠杆倍数</label>
-                            <input type="number" id="leverage" placeholder="例如: 10" value="10" min="1" max="125">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-success" onclick="startMonitoring()" id="startBtn">
-                        🚀 开始监控
-                    </button>
-                    <button class="btn btn-primary" onclick="triggerAIAnalysis()" id="aiBtn" disabled>
-                        🤖 获取AI建议
-                    </button>
-                    <button class="btn btn-warning" onclick="stopMonitoring()" id="stopBtn" disabled>
-                        ⏹️ 停止监控
-                    </button>
-                    <button class="btn btn-secondary" onclick="resetForm()">
-                        🔄 重置
-                    </button>
-                </div>
-            </div>
-
-            <div class="refresh-control" id="refreshControl" style="display: none;">
-                <div class="refresh-control-title">🔄 自动更新设置</div>
-                <div class="refresh-settings">
-                    <div class="switch-container">
-                        <label class="switch">
-                            <input type="checkbox" id="autoRefreshToggle" onchange="toggleAutoRefresh()">
-                            <span class="slider"></span>
-                        </label>
-                        <span>自动更新市场数据</span>
-                    </div>
-                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 0;">
-                        <label style="margin: 0;">更新间隔:</label>
-                        <select id="refreshInterval" style="width: auto;" onchange="updateRefreshInterval()">
-                            <option value="60">1分钟</option>
-                            <option value="180">3分钟</option>
-                            <option value="300" selected>5分钟</option>
-                            <option value="600">10分钟</option>
-                        </select>
-                    </div>
-                    <div style="color: #6c757d; font-size: 0.9em;">
-                        <span id="nextUpdateTime">下次更新: --</span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="loading" class="loading">
+        <div class="coin-list" id="coinList">
+            <div class="loading">
                 <div class="spinner"></div>
-                <p style="color: #667eea; font-size: 1.2em; font-weight: 600;">正在获取市场数据...</p>
-            </div>
-
-            <div id="results" class="results">
-                <div class="section">
-                    <div class="section-title">
-                        <span>📈 实时市场数据</span>
-                        <span class="last-update" id="lastUpdate">最后更新: --</span>
-                    </div>
-                    <div class="data-card">
-                        <div class="data-grid" id="marketData"></div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">📊 价格走势图（多时间框架）</div>
-                    <div class="chart-tabs">
-                        <div class="chart-tab active" onclick="switchChartTimeframe('1H')">1小时K线</div>
-                        <div class="chart-tab" onclick="switchChartTimeframe('4H')">4小时K线</div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="priceChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">🔬 技术指标分析（多时间框架）</div>
-                    <div style="margin-bottom: 15px; font-weight: 600; color: #667eea;">1小时级别指标：</div>
-                    <div class="data-card">
-                        <div class="data-grid" id="indicators1H"></div>
-                    </div>
-                    <div style="margin: 25px 0 15px 0; font-weight: 600; color: #667eea;">4小时级别指标：</div>
-                    <div class="data-card">
-                        <div class="data-grid" id="indicators4H"></div>
-                    </div>
-                </div>
-
-                <div class="ai-advice" id="aiAdviceSection" style="display: none;">
-                    <div class="ai-advice-header">
-                        <span class="ai-icon">🤖</span>
-                        <div>
-                            <div class="ai-advice-title"><span id="aiProviderName">DeepSeek</span> AI 交易建议</div>
-                            <small style="color: #6c757d;">多时间框架 + 多级止盈止损 | <span id="aiUpdateTime">--</span></small>
-                        </div>
-                    </div>
-                    <div class="advice-content" id="aiAdvice"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 多币种雷达 -->
-        <div id="tab-multi" class="tab-content">
-            <div class="section">
-                <div class="section-title">🔍 多币种雷达扫描</div>
-                <div class="config-section">
-                    <div class="config-title">💡 功能说明</div>
-                    <p>一键扫描多个币种，通过技术指标评分找出最佳交易机会。</p>
-                </div>
-
-                <div class="form-group">
-                    <label>选择要扫描的币种（可多选）</label>
-                    <div class="coin-selector" id="coinSelector"></div>
-                </div>
-
-                <div class="form-group">
-                    <label>交易类型</label>
-                    <select id="multiTradeType">
-                        <option value="SWAP">永续合约</option>
-                        <option value="SPOT">现货</option>
-                    </select>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-success" onclick="startRadarScan()">
-                        🎯 开始雷达扫描
-                    </button>
-                </div>
-            </div>
-
-            <div id="radarLoading" class="loading">
-                <div class="spinner"></div>
-                <p style="color: #667eea; font-size: 1.2em; font-weight: 600;">正在扫描币种...</p>
-                <p style="color: #6c757d; margin-top: 10px;" id="scanProgress">0/0</p>
-            </div>
-
-            <div id="radarResults" class="results">
-                <div class="section">
-                    <div class="section-title">📊 扫描结果（按评分排序）</div>
-                    <div class="comparison-grid" id="comparisonGrid"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 历史回测 -->
-        <div id="tab-backtest" class="tab-content">
-            <div class="section">
-                <div class="section-title">📈 历史回测</div>
-                <div class="config-section">
-                    <div class="config-title">💡 功能说明</div>
-                    <p>基于历史数据模拟交易策略表现。</p>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>币种代码</label>
-                        <input type="text" id="backtestSymbol" placeholder="例如: BTC" value="BTC">
-                    </div>
-                    <div class="form-group">
-                        <label>回测周期</label>
-                        <select id="backtestPeriod">
-                            <option value="7">最近7天</option>
-                            <option value="30" selected>最近30天</option>
-                            <option value="90">最近90天</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>初始资金 (USDT)</label>
-                        <input type="number" id="backtestCapital" value="10000" min="100">
-                    </div>
-                    <div class="form-group">
-                        <label>每次仓位比例</label>
-                        <select id="backtestPosition">
-                            <option value="0.25">25%</option>
-                            <option value="0.5" selected>50%</option>
-                            <option value="0.75">75%</option>
-                            <option value="1">100%</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="startBacktest()">
-                        🚀 开始回测
-                    </button>
-                </div>
-            </div>
-
-            <div id="backtestLoading" class="loading">
-                <div class="spinner"></div>
-                <p style="color: #667eea; font-size: 1.2em; font-weight: 600;">正在回测历史数据...</p>
-            </div>
-
-            <div id="backtestResults" class="results">
-                <div class="section">
-                    <div class="section-title">📊 回测结果摘要</div>
-                    <div class="backtest-summary" id="backtestSummary"></div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">📈 权益曲线</div>
-                    <div class="chart-container">
-                        <canvas id="equityChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">📝 交易记录</div>
-                    <div class="trade-list" id="tradeList"></div>
-                </div>
+                <div class="loading-text">正在加载市场数据...</div>
             </div>
         </div>
     </div>
 
     <script>
-        // 全局变量
-        let priceChart = null;
-        let equityChart = null;
-        let currentChartData = null;
-        let currentTimeframe = '1H';
-        let autoRefreshTimer = null;
-        let isMonitoring = false;
-        let lastMarketData = null;
-        let nextUpdateTimeout = null;
-        let currentAIProvider = 'deepseek';
+        // 配置
+        const COINS = [
+            { symbol: 'BTC', name: 'Bitcoin' },
+            { symbol: 'ETH', name: 'Ethereum' },
+            { symbol: 'SOL', name: 'Solana' },
+            { symbol: 'BNB', name: 'BNB' },
+            { symbol: 'XRP', name: 'Ripple' },
+            { symbol: 'DOGE', name: 'Dogecoin' },
+            { symbol: 'ADA', name: 'Cardano' },
+            { symbol: 'AVAX', name: 'Avalanche' },
+            { symbol: 'DOT', name: 'Polkadot' },
+            { symbol: 'MATIC', name: 'Polygon' }
+        ];
 
-        const popularCoins = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'ADA', 'AVAX', 'DOT', 'MATIC', 'LINK', 'UNI', 'ATOM', 'LTC', 'BCH'];
+        const TIMEFRAMES = [
+            { value: '1m', label: '1分钟' },
+            { value: '5m', label: '5分钟' },
+            { value: '15m', label: '15分钟' },
+            { value: '30m', label: '30分钟' },
+            { value: '1H', label: '1小时' },
+            { value: '4H', label: '4小时' },
+            { value: '1D', label: '1天' },
+            { value: '1W', label: '1周' }
+        ];
 
-        // AI服务商选择
-        function selectProvider(provider) {
-            currentAIProvider = provider;
-            document.getElementById('providerDeepseek').checked = (provider === 'deepseek');
-            document.getElementById('providerQwen').checked = (provider === 'qwen');
-            
-            const label = document.getElementById('apiKeyLabel');
-            const input = document.getElementById('apiKey');
-            
-            if (provider === 'deepseek') {
-                label.textContent = 'DeepSeek API Key';
-                input.placeholder = '必填：sk-xxxxxx';
-                document.getElementById('aiProviderName').textContent = 'DeepSeek';
-            } else {
-                label.textContent = '阿里云千问 API Key';
-                input.placeholder = '必填：sk-xxxxxx (阿里云)';
-                document.getElementById('aiProviderName').textContent = '千问';
-            }
-            
-            const savedKey = localStorage.getItem(`${provider}ApiKey`);
-            if (savedKey) {
-                input.value = savedKey;
-            }
-        }
+        // 全局状态
+        let charts = {};
+        let coinData = {};
+        let currentSortMode = 'gain'; // 默认按涨幅排序
+        let expandedCoins = new Set(); // 记录展开的币种
 
         // 工具函数
-        function formatSignificantDigits(num, minDigits = 4) {
-            if (num === 0) return '0';
-            const absNum = Math.abs(num);
-            if (absNum >= 1) {
-                const integerDigits = Math.floor(Math.log10(absNum)) + 1;
-                const decimalPlaces = Math.max(0, minDigits - integerDigits);
-                return num.toFixed(decimalPlaces);
-            }
-            const magnitude = Math.floor(Math.log10(absNum));
-            const decimalPlaces = minDigits - magnitude - 1;
-            return num.toFixed(Math.max(0, decimalPlaces));
+        function formatNumber(num, decimals = 2) {
+            if (num === null || num === undefined) return '-';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toFixed(decimals);
         }
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('tab-' + tabName).classList.add('active');
-        }
-
-        function switchChartTimeframe(timeframe) {
-            currentTimeframe = timeframe;
-            document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if (currentChartData) {
-                if (timeframe === '1H') {
-                    drawChart(currentChartData.timestamps1H, currentChartData.closes1H, 
-                             currentChartData.ema20_1H, currentChartData.ema50_1H);
-                } else {
-                    drawChart(currentChartData.timestamps4H, currentChartData.closes4H, 
-                             currentChartData.ema20_4H, currentChartData.ema50_4H);
-                }
-            }
-        }
-
-        function togglePositionDetails() {
-            const status = document.getElementById('positionStatus').value;
-            const details = document.getElementById('positionDetails');
-            details.style.display = (status !== 'none') ? 'block' : 'none';
-        }
-
-        function resetForm() {
-            stopMonitoring();
-            document.getElementById('results').classList.remove('active');
-            document.getElementById('positionStatus').value = 'none';
-            togglePositionDetails();
-        }
-
-        function initCoinSelector() {
-            const selector = document.getElementById('coinSelector');
-            popularCoins.forEach(coin => {
-                const chip = document.createElement('div');
-                chip.className = 'coin-chip';
-                chip.textContent = coin;
-                chip.onclick = function() {
-                    this.classList.toggle('selected');
-                };
-                selector.appendChild(chip);
-            });
-            selector.querySelectorAll('.coin-chip').forEach((chip, i) => {
-                if (i < 5) chip.classList.add('selected');
-            });
-        }
-
-        // 自动刷新功能
-        async function startMonitoring() {
-            const symbol = document.getElementById('symbol').value.toUpperCase().trim();
-            const apiKey = document.getElementById('apiKey').value.trim();
-
-            if (!symbol) {
-                alert('请输入币种代码');
-                return;
-            }
-
-            if (!apiKey) {
-                alert('请输入API Key');
-                return;
-            }
-
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('loading').classList.add('active');
-
-            try {
-                await updateMarketData();
-                
-                isMonitoring = true;
-                document.getElementById('results').classList.add('active');
-                document.getElementById('refreshControl').style.display = 'block';
-                document.getElementById('aiBtn').disabled = false;
-                document.getElementById('stopBtn').disabled = false;
-                document.getElementById('autoRefreshToggle').checked = true;
-                
-                toggleAutoRefresh();
-                
-            } catch (error) {
-                console.error('启动失败:', error);
-                alert('启动失败: ' + error.message);
-                document.getElementById('startBtn').disabled = false;
-            } finally {
-                document.getElementById('loading').classList.remove('active');
-            }
-        }
-
-        function stopMonitoring() {
-            isMonitoring = false;
-            if (autoRefreshTimer) {
-                clearInterval(autoRefreshTimer);
-                autoRefreshTimer = null;
-            }
-            if (nextUpdateTimeout) {
-                clearInterval(nextUpdateTimeout);
-                nextUpdateTimeout = null;
-            }
-            
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('aiBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = true;
-            document.getElementById('autoRefreshToggle').checked = false;
-            document.getElementById('refreshControl').style.display = 'none';
-            document.getElementById('autoRefreshBadge').classList.remove('active');
-            document.getElementById('refreshStatus').textContent = '自动更新已停止';
-            document.getElementById('nextUpdateTime').textContent = '下次更新: --';
-        }
-
-        function toggleAutoRefresh() {
-            const isEnabled = document.getElementById('autoRefreshToggle').checked;
-            
-            if (isEnabled && isMonitoring) {
-                startAutoRefresh();
-            } else {
-                if (autoRefreshTimer) {
-                    clearInterval(autoRefreshTimer);
-                    autoRefreshTimer = null;
-                }
-                if (nextUpdateTimeout) {
-                    clearInterval(nextUpdateTimeout);
-                    nextUpdateTimeout = null;
-                }
-                document.getElementById('autoRefreshBadge').classList.remove('active');
-                document.getElementById('refreshStatus').textContent = '自动更新已暂停';
-                document.getElementById('nextUpdateTime').textContent = '下次更新: --';
-            }
-        }
-
-        function startAutoRefresh() {
-            const interval = parseInt(document.getElementById('refreshInterval').value) * 1000;
-            
-            if (autoRefreshTimer) {
-                clearInterval(autoRefreshTimer);
-            }
-            
-            autoRefreshTimer = setInterval(() => {
-                updateMarketData();
-            }, interval);
-            
-            document.getElementById('autoRefreshBadge').classList.add('active');
-            document.getElementById('refreshStatus').textContent = '自动更新运行中';
-            
-            updateNextUpdateTime();
-        }
-
-        function updateRefreshInterval() {
-            if (document.getElementById('autoRefreshToggle').checked) {
-                startAutoRefresh();
-            }
-        }
-
-        function updateNextUpdateTime() {
-            if (nextUpdateTimeout) {
-                clearInterval(nextUpdateTimeout);
-            }
-            
-            const interval = parseInt(document.getElementById('refreshInterval').value);
-            const nextTime = new Date(Date.now() + interval * 1000);
-            
-            const updateDisplay = () => {
-                const now = new Date();
-                const diff = Math.max(0, Math.floor((nextTime - now) / 1000));
-                const minutes = Math.floor(diff / 60);
-                const seconds = diff % 60;
-                document.getElementById('nextUpdateTime').textContent = 
-                    `下次更新: ${minutes}分${seconds}秒`;
-            };
-            
-            updateDisplay();
-            nextUpdateTimeout = setInterval(updateDisplay, 1000);
-        }
-
-        async function updateMarketData() {
-            const symbol = document.getElementById('symbol').value.toUpperCase().trim();
-            const tradeType = document.getElementById('tradeType').value;
-            const instId = tradeType === 'SPOT' ? `${symbol}-USDT` : `${symbol}-USDT-SWAP`;
-
-            try {
-                document.querySelectorAll('.data-item').forEach(item => {
-                    item.classList.add('updating');
-                });
-
-                const [data1H, data4H] = await Promise.all([
-                    fetchMarketData(instId, tradeType, '1H', 100),
-                    fetchMarketData(instId, tradeType, '4H', 100)
-                ]);
-
-                lastMarketData = { data1H, data4H, symbol, tradeType };
-
-                currentChartData = {
-                    timestamps1H: data1H.timestamps,
-                    closes1H: data1H.closes,
-                    ema20_1H: data1H.ema20,
-                    ema50_1H: data1H.ema50,
-                    timestamps4H: data4H.timestamps,
-                    closes4H: data4H.closes,
-                    ema20_4H: data4H.ema20,
-                    ema50_4H: data4H.ema50
-                };
-
-                displayMarketData({
-                    symbol: symbol,
-                    currentPrice: data1H.currentPrice,
-                    change24h: data1H.change24h,
-                    high24h: data1H.high24h,
-                    low24h: data1H.low24h,
-                    volume24h: data1H.volume24h,
-                    fundingRate: data1H.fundingRate,
-                    openInterest: data1H.openInterest
-                });
-
-                displayIndicators(data1H.indicators, '1H');
-                displayIndicators(data4H.indicators, '4H');
-
-                if (currentTimeframe === '1H') {
-                    drawChart(data1H.timestamps, data1H.closes, data1H.ema20, data1H.ema50);
-                } else {
-                    drawChart(data4H.timestamps, data4H.closes, data4H.ema20, data4H.ema50);
-                }
-
-                document.getElementById('lastUpdate').textContent = 
-                    `最后更新: ${new Date().toLocaleTimeString('zh-CN')}`;
-
-                setTimeout(() => {
-                    document.querySelectorAll('.data-item').forEach(item => {
-                        item.classList.remove('updating');
-                    });
-                }, 300);
-
-                if (document.getElementById('autoRefreshToggle').checked) {
-                    updateNextUpdateTime();
-                }
-
-            } catch (error) {
-                console.error('更新市场数据失败:', error);
-            }
-        }
-
-        async function triggerAIAnalysis() {
-            const apiKey = document.getElementById('apiKey').value.trim();
-            
-            if (!apiKey) {
-                alert('请输入API Key');
-                return;
-            }
-
-            if (!lastMarketData) {
-                alert('请先获取市场数据');
-                return;
-            }
-
-            document.getElementById('aiBtn').disabled = true;
-            document.getElementById('loading').classList.add('active');
-
-            try {
-                await updateMarketData();
-
-                const { data1H, data4H, symbol } = lastMarketData;
-                const positionStatus = document.getElementById('positionStatus').value;
-
-                let positionInfo = {
-                    status: positionStatus,
-                    entryPrice: null,
-                    size: null,
-                    leverage: null,
-                    pnl: null,
-                    pnlPercent: null
-                };
-
-                if (positionStatus !== 'none') {
-                    positionInfo.entryPrice = parseFloat(document.getElementById('entryPrice').value);
-                    positionInfo.size = parseFloat(document.getElementById('positionSize').value);
-                    positionInfo.leverage = parseFloat(document.getElementById('leverage').value);
-                    
-                    if (positionStatus === 'long') {
-                        positionInfo.pnl = (data1H.currentPrice - positionInfo.entryPrice) * positionInfo.size;
-                        positionInfo.pnlPercent = ((data1H.currentPrice - positionInfo.entryPrice) / positionInfo.entryPrice * 100);
-                    } else {
-                        positionInfo.pnl = (positionInfo.entryPrice - data1H.currentPrice) * positionInfo.size;
-                        positionInfo.pnlPercent = ((positionInfo.entryPrice - data1H.currentPrice) / positionInfo.entryPrice * 100);
-                    }
-                }
-
-                const aiAdvice = await getAIAdvice({
-                    symbol: symbol,
-                    tradeType: lastMarketData.tradeType,
-                    currentPrice: data1H.currentPrice,
-                    marketData: {
-                        change24h: data1H.change24h,
-                        high24h: data1H.high24h,
-                        low24h: data1H.low24h,
-                        volume24h: data1H.volume24h,
-                        fundingRate: data1H.fundingRate,
-                        openInterest: data1H.openInterest
-                    },
-                    indicators1H: data1H.indicators,
-                    indicators4H: data4H.indicators,
-                    position: positionInfo,
-                    recentPrices1H: data1H.closes.slice(-20),
-                    recentPrices4H: data4H.closes.slice(-10)
-                }, apiKey, currentAIProvider);
-
-                displayAIAdvice(aiAdvice);
-                document.getElementById('aiAdviceSection').style.display = 'block';
-                document.getElementById('aiUpdateTime').textContent = 
-                    `分析时间: ${new Date().toLocaleTimeString('zh-CN')}`;
-
-            } catch (error) {
-                console.error('AI分析失败:', error);
-                alert('AI分析失败: ' + error.message);
-            } finally {
-                document.getElementById('loading').classList.remove('active');
-                document.getElementById('aiBtn').disabled = false;
-            }
+        function formatPrice(price) {
+            if (!price) return '-';
+            if (price >= 1000) return price.toFixed(2);
+            if (price >= 1) return price.toFixed(4);
+            if (price >= 0.01) return price.toFixed(6);
+            return price.toFixed(8);
         }
 
         // 技术指标计算
@@ -1416,32 +1024,29 @@
             return ema;
         }
 
-        function calculateRSI(data, period) {
+        function calculateRSI(data, period = 14) {
             let gains = [];
             let losses = [];
             
             for (let i = 1; i < data.length; i++) {
-                const difference = data[i] - data[i - 1];
-                gains.push(difference > 0 ? difference : 0);
-                losses.push(difference < 0 ? -difference : 0);
+                const diff = data[i] - data[i - 1];
+                gains.push(diff > 0 ? diff : 0);
+                losses.push(diff < 0 ? -diff : 0);
             }
             
-            if (gains.length < period) return [50];
+            if (gains.length < period) return 50;
             
             let avgGain = gains.slice(0, period).reduce((a, b) => a + b) / period;
             let avgLoss = losses.slice(0, period).reduce((a, b) => a + b) / period;
             
-            if (avgLoss === 0) return [100];
-            
-            let rsi = [100 - (100 / (1 + avgGain / avgLoss))];
+            if (avgLoss === 0) return 100;
             
             for (let i = period; i < gains.length; i++) {
                 avgGain = (avgGain * (period - 1) + gains[i]) / period;
                 avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
-                rsi.push(avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss)));
             }
             
-            return rsi;
+            return avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
         }
 
         function calculateMACD(data) {
@@ -1458,848 +1063,636 @@
             };
         }
 
-        function calculateATR(high, low, close, period) {
-            let tr = [];
-            for (let i = 1; i < high.length; i++) {
-                const hl = high[i] - low[i];
-                const hc = Math.abs(high[i] - close[i - 1]);
-                const lc = Math.abs(low[i] - close[i - 1]);
-                tr.push(Math.max(hl, hc, lc));
-            }
+        function calculateBollingerBands(data, period = 20, stdDev = 2) {
+            const sma = data.slice(-period).reduce((a, b) => a + b) / period;
+            const variance = data.slice(-period).reduce((sum, val) => sum + Math.pow(val - sma, 2), 0) / period;
+            const std = Math.sqrt(variance);
             
-            if (tr.length < period) return 0;
-            
-            let atr = tr.slice(0, period).reduce((a, b) => a + b) / period;
-            for (let i = period; i < tr.length; i++) {
-                atr = (atr * (period - 1) + tr[i]) / period;
-            }
-            
-            return atr;
-        }
-
-        function calculateTechnicalScore(indicators, currentPrice) {
-            let score = 50;
-            
-            if (currentPrice > indicators.ema20 && indicators.ema20 > indicators.ema50) {
-                score += 15;
-            } else if (currentPrice < indicators.ema20 && indicators.ema20 < indicators.ema50) {
-                score -= 15;
-            }
-            
-            if (indicators.rsi14 < 30) {
-                score += 15;
-            } else if (indicators.rsi14 > 70) {
-                score -= 15;
-            } else if (indicators.rsi14 >= 40 && indicators.rsi14 <= 60) {
-                score += 5;
-            }
-            
-            if (indicators.macd.histogram > 0 && indicators.macd.macd > indicators.macd.signal) {
-                score += 10;
-            } else if (indicators.macd.histogram < 0 && indicators.macd.macd < indicators.macd.signal) {
-                score -= 10;
-            }
-            
-            return Math.max(0, Math.min(100, score));
-        }
-
-        function getSignalFromScore(score) {
-            if (score >= 70) return { text: '强烈做多', class: 'signal-buy' };
-            if (score >= 55) return { text: '建议做多', class: 'signal-buy' };
-            if (score >= 45) return { text: '观望', class: 'signal-wait' };
-            if (score >= 30) return { text: '建议做空', class: 'signal-sell' };
-            return { text: '强烈做空', class: 'signal-sell' };
-        }
-
-        // 数据获取
-        async function fetchMarketData(instId, tradeType, bar, limit) {
-            const candlesResponse = await axios.get(`https://www.okx.com/api/v5/market/candles`, {
-                params: { instId, bar, limit }
-            });
-
-            const candles = candlesResponse.data.data;
-            if (!candles || candles.length === 0) {
-                throw new Error('无法获取K线数据');
-            }
-
-            candles.reverse();
-            const timestamps = candles.map(c => new Date(parseInt(c[0])));
-            const opens = candles.map(c => parseFloat(c[1]));
-            const highs = candles.map(c => parseFloat(c[2]));
-            const lows = candles.map(c => parseFloat(c[3]));
-            const closes = candles.map(c => parseFloat(c[4]));
-            const volumes = candles.map(c => parseFloat(c[5]));
-
-            const tickerResponse = await axios.get(`https://www.okx.com/api/v5/market/ticker`, {
-                params: { instId }
-            });
-            const ticker = tickerResponse.data.data[0];
-            const currentPrice = parseFloat(ticker.last);
-            const open24h = parseFloat(ticker.sodUtc0);
-            const change24h = open24h > 0 ? ((currentPrice - open24h) / open24h * 100) : 0;
-
-            let fundingRate = 'N/A';
-            if (tradeType !== 'SPOT') {
-                try {
-                    const fundingResponse = await axios.get(`https://www.okx.com/api/v5/public/funding-rate`, {
-                        params: { instId }
-                    });
-                    fundingRate = (parseFloat(fundingResponse.data.data[0].fundingRate) * 100).toFixed(4) + '%';
-                } catch (e) {}
-            }
-
-            let openInterest = 'N/A';
-            if (tradeType !== 'SPOT') {
-                try {
-                    const oiResponse = await axios.get(`https://www.okx.com/api/v5/public/open-interest`, {
-                        params: { instId }
-                    });
-                    openInterest = parseFloat(oiResponse.data.data[0].oi).toLocaleString();
-                } catch (e) {}
-            }
-
-            const ema20 = calculateEMA(closes, 20);
-            const ema50 = calculateEMA(closes, 50);
-            const rsi7 = calculateRSI(closes, 7);
-            const rsi14 = calculateRSI(closes, 14);
-            const macd = calculateMACD(closes);
-            const atr = calculateATR(highs, lows, closes, 14);
-
             return {
-                timestamps, opens, highs, lows, closes, volumes,
-                currentPrice, change24h,
-                high24h: parseFloat(ticker.high24h),
-                low24h: parseFloat(ticker.low24h),
-                volume24h: parseFloat(ticker.vol24h),
-                fundingRate, openInterest,
-                ema20, ema50,
-                indicators: {
-                    ema20: ema20[ema20.length - 1],
-                    ema50: ema50[ema50.length - 1],
-                    rsi7: rsi7[rsi7.length - 1],
-                    rsi14: rsi14[rsi14.length - 1],
-                    macd: macd,
-                    atr: atr
-                }
+                upper: sma + (std * stdDev),
+                middle: sma,
+                lower: sma - (std * stdDev)
             };
         }
 
-        // 数据显示
-        function displayMarketData(data) {
-            const container = document.getElementById('marketData');
-            const changeClass = data.change24h >= 0 ? 'positive' : 'negative';
-            const changeSymbol = data.change24h >= 0 ? '📈' : '📉';
-            
-            container.innerHTML = `
-                <div class="data-item">
-                    <div class="data-label">当前价格</div>
-                    <div class="data-value">${formatSignificantDigits(data.currentPrice, 4)} USDT</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">24小时涨跌 ${changeSymbol}</div>
-                    <div class="data-value ${changeClass}">${data.change24h.toFixed(2)}%</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">24小时最高</div>
-                    <div class="data-value">${formatSignificantDigits(data.high24h, 4)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">24小时最低</div>
-                    <div class="data-value">${formatSignificantDigits(data.low24h, 4)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">24小时成交量</div>
-                    <div class="data-value">${data.volume24h.toFixed(2)} ${data.symbol}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">资金费率</div>
-                    <div class="data-value">${data.fundingRate}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">持仓量</div>
-                    <div class="data-value">${data.openInterest}</div>
-                </div>
-            `;
-        }
-
-        function displayIndicators(data, timeframe) {
-            const container = document.getElementById('indicators' + timeframe);
-            const rsi7Class = data.rsi7 > 70 ? 'negative' : data.rsi7 < 30 ? 'positive' : '';
-            const rsi14Class = data.rsi14 > 70 ? 'negative' : data.rsi14 < 30 ? 'positive' : '';
-            
-            container.innerHTML = `
-                <div class="data-item">
-                    <div class="data-label">EMA(20)</div>
-                    <div class="data-value">${formatSignificantDigits(data.ema20, 4)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">EMA(50)</div>
-                    <div class="data-value">${formatSignificantDigits(data.ema50, 4)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">RSI(7)</div>
-                    <div class="data-value ${rsi7Class}">${data.rsi7.toFixed(2)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">RSI(14)</div>
-                    <div class="data-value ${rsi14Class}">${data.rsi14.toFixed(2)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">MACD</div>
-                    <div class="data-value">${formatSignificantDigits(data.macd.macd, 4)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">MACD信号线</div>
-                    <div class="data-value">${formatSignificantDigits(data.macd.signal, 4)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">MACD柱状图</div>
-                    <div class="data-value ${data.macd.histogram > 0 ? 'positive' : 'negative'}">${formatSignificantDigits(data.macd.histogram, 4)}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">ATR(14)</div>
-                    <div class="data-value">${formatSignificantDigits(data.atr, 4)}</div>
-                </div>
-            `;
-        }
-
-        function drawChart(timestamps, closes, ema20, ema50) {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            
-            if (priceChart) {
-                priceChart.destroy();
-            }
-
-            priceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: timestamps.map(t => t.toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit' })),
-                    datasets: [
-                        {
-                            label: '价格',
-                            data: closes,
-                            borderColor: 'rgb(102, 126, 234)',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.1
-                        },
-                        {
-                            label: 'EMA(20)',
-                            data: ema20,
-                            borderColor: 'rgb(255, 99, 132)',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            fill: false
-                        },
-                        {
-                            label: 'EMA(50)',
-                            data: ema50,
-                            borderColor: 'rgb(75, 192, 192)',
-                            borderWidth: 2,
-                            borderDash: [10, 5],
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: true, position: 'top' },
-                        title: { display: true, text: '价格走势与均线' }
-                    },
-                    scales: { y: { beginAtZero: false } }
-                }
-            });
-        }
-
-        // AI分析（改进版）
-        async function getAIAdvice(data, apiKey, provider) {
-            const atr1H = data.indicators1H.atr;
-            const atr4H = data.indicators4H.atr;
-            
-            // 计算关键价格位
-            const currentPrice = data.currentPrice;
-            const high24h = data.marketData.high24h;
-            const low24h = data.marketData.low24h;
-            const ema20_1H = data.indicators1H.ema20;
-            const ema50_1H = data.indicators1H.ema50;
-            const ema20_4H = data.indicators4H.ema20;
-            const ema50_4H = data.indicators4H.ema50;
-            
-            let prompt = `你是一名经验丰富的激进的专业交易员，正在用自己的资金交易${data.symbol}。现在需要你做出真实的交易决策，语言简练，不要说客套话
-
-=== 市场数据 ===
-当前价格: ${formatSignificantDigits(currentPrice, 4)} USDT
-24H变化: ${data.marketData.change24h.toFixed(2)}%
-24H高点: ${formatSignificantDigits(high24h, 4)} | 低点: ${formatSignificantDigits(low24h, 4)}
-ATR(1H): ${formatSignificantDigits(atr1H, 4)} | ATR(4H): ${formatSignificantDigits(atr4H, 4)}
-
-=== 技术指标 ===
-【1小时级别】
-- EMA20: ${formatSignificantDigits(ema20_1H, 4)} | EMA50: ${formatSignificantDigits(ema50_1H, 4)}
-- RSI: ${data.indicators1H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators1H.macd.histogram, 4)}
-
-【4小时级别】
-- EMA20: ${formatSignificantDigits(ema20_4H, 4)} | EMA50: ${formatSignificantDigits(ema50_4H, 4)}
-- RSI: ${data.indicators4H.rsi14.toFixed(2)} | MACD柱: ${formatSignificantDigits(data.indicators4H.macd.histogram, 4)}
-
-=== 近期价格行为 ===
-最近20根1H K线收盘价: ${data.recentPrices1H.slice(-5).map(p => formatSignificantDigits(p, 4)).join(', ')}...
-最近10根4H K线收盘价: ${data.recentPrices4H.slice(-3).map(p => formatSignificantDigits(p, 4)).join(', ')}...
-`;
-
-            if (data.position.status !== 'none') {
-                const posType = data.position.status === 'long' ? '多头' : '空头';
-                const pnl = data.position.pnlPercent.toFixed(2);
-                const entryPrice = data.position.entryPrice;
-                
-                prompt += `
-=== 当前持仓 ===
-方向: ${posType}
-开仓价: ${formatSignificantDigits(entryPrice, 4)} USDT
-持仓: ${data.position.size} ${data.symbol}
-杠杆: ${data.position.leverage}x
-浮动盈亏: ${pnl}%
-
-作为交易员，你现在必须做出决策：
-
-【分析步骤】
-1. 趋势判断：1H和4H的EMA排列是否一致？当前处于什么趋势阶段？
-2. 动能分析：MACD和RSI显示动能是增强还是衰减？
-3. 关键价位：
-   - 向上压力位：24H高点${formatSignificantDigits(high24h, 4)}、4H EMA20/50
-   - 向下支撑位：24H低点${formatSignificantDigits(low24h, 4)}、1H EMA20/50
-4. 盈亏情况：当前${pnl}%的浮盈/浮亏是否应该兑现或止损？
-
-【决策】（必须明确选一个）
-□ 继续持有
-□ 部分止盈
-□ 全部止盈
-□ 止损离场
-□ 加仓
-
-【执行计划】
-三级止盈方案（结合关键压力位和ATR）：
-- 第一目标（30%仓位）: [价格] - 理由：[关键位置/ATR倍数]
-- 第二目标（40%仓位）: [价格] - 理由：[关键位置/ATR倍数]  
-- 第三目标（30%仓位）: [价格] - 理由：[关键位置/ATR倍数]
-
-止损位：[价格] - 必须说明是基于什么（关键支撑位/1.5-2倍ATR/保护利润）
-
-【核心逻辑】（1-2句话）
-为什么做这个决策？多空共振？趋势延续？还是背离信号？
-`;
-            } else {
-                prompt += `
-=== 当前状态 ===
-未持仓，正在寻找入场机会。
-
-作为交易员，你必须评估当前价格是否应该入场：
-
-【分析步骤】
-1. 多空判断：
-   - 1H级别：价格vs EMA20 vs EMA50的位置关系
-   - 4H级别：价格vs EMA20 vs EMA50的位置关系
-   - 双周期是否共振？
-
-2. 动能确认：
-   - RSI是否超买/超卖/中性？
-   - MACD柱是否放大/收缩？
-   - 价格动能是否与指标背离？
-
-3. 关键价位识别：
-   - 压力位：24H高点${formatSignificantDigits(high24h, 4)}、EMA均线
-   - 支撑位：24H低点${formatSignificantDigits(low24h, 4)}、EMA均线
-   - 当前价格离哪个关键位更近？
-
-4. 风险收益比：
-   - 入场到第一目标的空间是否足够？
-   - 止损距离是否合理（不超过2倍ATR）？
-
-【决策】（必须明确选一个）
-□ 做多
-□ 做空
-□ 观望等待
-
-如果【做多】或【做空】，提供：
-
-入场策略：
-- 当前价格的入场区间：[价格1] - [价格2]（基于回调/突破+ATR）
-
-三级止盈（结合关键压力位/支撑位和ATR）：
-- 保守目标（30%）: [价格] - [压力位/支撑位 + ATR倍数]
-- 中性目标（40%）: [价格] - [下一个关键位 + ATR倍数]
-- 激进目标（30%）: [价格] - [重要心理关口 + ATR倍数]
-
-止损位：[价格] - 基于[关键支撑/压力位]或[1.5-2倍ATR]
-
-如果【观望】，说明：
-- 等待什么信号？（突破、回调、指标修复）
-- 关注哪个价位？（突破做多 / 跌破做空）
-- 具体触发条件
-
-【核心逻辑】（2-3句话）
-为什么做多/做空/观望？多空趋势如何？关键位在哪？1H和4H是否共振？
-`;
-            }
-
-            prompt += `
-【回复要求】
-1. 像一个激进的专业交易员一样思考和决策
-2. 价格必须具体且合理，基于当前价格进行决策：
-   - 止盈位要考虑关键压力位/支撑位，不能只看ATR
-   - 止损位要保护本金或利润，设在关键位附近
-3. 三级止盈间隔要够大（3-5倍ATR或关键位之间的距离）
-4. 说明每个价位的依据（是EMA？是24H高低点？还是ATR倍数？）
-5. 不要客套话，直接给决策和理由
-6. 要体现对市场结构的理解（趋势、支撑压力、动能）`;
-
+        // API 调用
+        async function fetchDailyQuote() {
             try {
-                let apiUrl, modelName, headers;
+                // 使用一言API获取每日一句
+                const response = await fetch('https://v1.hitokoto.cn/?c=i&encode=json');
+                const data = await response.json();
                 
-                if (provider === 'deepseek') {
-                    apiUrl = 'https://api.deepseek.com/v1/chat/completions';
-                    modelName = 'deepseek-chat';
-                    headers = {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    };
-                } else {
-                    apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
-                    modelName = 'qwen-plus';
-                    headers = {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    };
-                }
-
-                const response = await axios.post(apiUrl, {
-                    model: modelName,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: '你是一名顶尖的加密货币交易员，拥有10年实战经验。你擅长多时间框架分析、识别关键价格位、判断市场结构。你用自己的资金交易，每个决策都是真金白银。你的风格：果断、精准、激进，从不模棱两可。'
-                        },
-                        { role: 'user', content: prompt }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 2000
-                }, { headers });
-
-                return response.data.choices[0].message.content;
+                return {
+                    text: data.hitokoto,
+                    author: data.from_who ? `—— ${data.from_who}《${data.from}》` : `—— 《${data.from}》`
+                };
             } catch (error) {
-                console.error('AI API调用失败:', error);
-                throw new Error('AI分析失败: ' + (error.response?.data?.error?.message || error.message));
+                console.error('获取每日一句失败:', error);
+                // 返回默认名言
+                return {
+                    text: '投资最重要的是风险控制,而不是追求利润。',
+                    author: '—— 巴菲特'
+                };
             }
         }
 
-        function displayAIAdvice(advice) {
-            const container = document.getElementById('aiAdvice');
-            
-            let signal = '';
-            const lowerAdvice = advice.toLowerCase();
-            
-            if (lowerAdvice.includes('做多') || lowerAdvice.includes('买入')) {
-                signal = '<span class="signal-badge signal-buy">📈 做多</span>';
-            } else if (lowerAdvice.includes('做空') || lowerAdvice.includes('卖出')) {
-                signal = '<span class="signal-badge signal-sell">📉 做空</span>';
-            } else if (lowerAdvice.includes('继续持有') || lowerAdvice.includes('持有')) {
-                signal = '<span class="signal-badge signal-hold">⏸️ 持有</span>';
-            } else if (lowerAdvice.includes('止盈')) {
-                signal = '<span class="signal-badge signal-buy">💰 止盈</span>';
-            } else if (lowerAdvice.includes('止损')) {
-                signal = '<span class="signal-badge signal-sell">🛑 止损</span>';
-            } else if (lowerAdvice.includes('观望')) {
-                signal = '<span class="signal-badge signal-wait">👀 观望</span>';
-            }
-            
-            container.innerHTML = signal + '<br><br>' + advice.replace(/\n/g, '<br>');
+        function renderDailyQuote(quote) {
+            document.getElementById('quoteText').textContent = `"${quote.text}"`;
+            document.getElementById('quoteAuthor').textContent = quote.author;
         }
 
-        // 多币种雷达
-        async function startRadarScan() {
-            const selectedCoins = Array.from(document.querySelectorAll('.coin-chip.selected')).map(chip => chip.textContent);
-            
-            if (selectedCoins.length === 0) {
-                alert('请至少选择一个币种');
-                return;
-            }
-
-            const tradeType = document.getElementById('multiTradeType').value;
-
-            document.getElementById('radarLoading').classList.add('active');
-            document.getElementById('radarResults').classList.remove('active');
-
-            const results = [];
-            let completed = 0;
-
-            for (const coin of selectedCoins) {
-                try {
-                    const instId = tradeType === 'SPOT' ? `${coin}-USDT` : `${coin}-USDT-SWAP`;
-                    const data = await fetchMarketData(instId, tradeType, '1H', 100);
-                    
-                    const score = calculateTechnicalScore(data.indicators, data.currentPrice);
-                    const signal = getSignalFromScore(score);
-                    
-                    results.push({
-                        coin, score, signal,
-                        currentPrice: data.currentPrice,
-                        change24h: data.change24h,
-                        indicators: data.indicators
-                    });
-
-                    completed++;
-                    document.getElementById('scanProgress').textContent = `${completed}/${selectedCoins.length}`;
-                } catch (error) {
-                    console.error(`扫描${coin}失败:`, error);
-                }
-            }
-
-            results.sort((a, b) => b.score - a.score);
-            displayRadarResults(results);
-
-            document.getElementById('radarLoading').classList.remove('active');
-            document.getElementById('radarResults').classList.add('active');
-        }
-
-        function displayRadarResults(results) {
-            const container = document.getElementById('comparisonGrid');
-            
-            container.innerHTML = results.map(result => {
-                const scoreColor = result.score >= 70 ? '#28a745' : 
-                                   result.score >= 55 ? '#17a2b8' : 
-                                   result.score >= 45 ? '#ffc107' : 
-                                   result.score >= 30 ? '#fd7e14' : '#dc3545';
+        async function fetchMarketData() {
+            try {
+                const response = await fetch('https://www.okx.com/api/v5/market/tickers?instType=SWAP');
+                const data = await response.json();
                 
-                return `
-                    <div class="coin-card">
-                        <div class="coin-card-header">
-                            <div class="coin-name">${result.coin}</div>
-                            <div class="coin-signal ${result.signal.class}">${result.signal.text}</div>
-                        </div>
-                        
-                        <div class="score-container">
-                            <div class="score-circle" style="background: linear-gradient(135deg, ${scoreColor}, ${scoreColor}88); color: white;">
-                                ${result.score}
-                            </div>
-                            <div class="score-label">技术评分</div>
-                        </div>
-                        
-                        <div class="data-grid">
-                            <div class="data-item">
-                                <div class="data-label">当前价格</div>
-                                <div class="data-value">${formatSignificantDigits(result.currentPrice, 4)}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">24h涨跌</div>
-                                <div class="data-value ${result.change24h >= 0 ? 'positive' : 'negative'}">
-                                    ${result.change24h.toFixed(2)}%
-                                </div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">RSI(14)</div>
-                                <div class="data-value">${result.indicators.rsi14.toFixed(2)}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">MACD</div>
-                                <div class="data-value ${result.indicators.macd.histogram > 0 ? 'positive' : 'negative'}">
-                                    ${formatSignificantDigits(result.indicators.macd.histogram, 4)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                if (data.code !== '0') {
+                    throw new Error('API错误: ' + data.msg);
+                }
+                
+                const tickers = data.data.filter(ticker => 
+                    COINS.some(coin => ticker.instId === `${coin.symbol}-USDT-SWAP`)
+                );
+                
+                return tickers.map(ticker => {
+                    const symbol = ticker.instId.replace('-USDT-SWAP', '');
+                    const coin = COINS.find(c => c.symbol === symbol);
+                    
+                    const currentPrice = parseFloat(ticker.last);
+                    const open24h = parseFloat(ticker.sodUtc0);
+                    const change24h = open24h > 0 ? ((currentPrice - open24h) / open24h) * 100 : 0;
+                    
+                    // 修复：成交额 = 成交量(币) * 当前价格
+                    const volume24h = parseFloat(ticker.vol24h); // 成交量（以币为单位）
+                    const turnover24h = volume24h * currentPrice; // 成交额（以USDT为单位）
+                    
+                    return {
+                        symbol,
+                        name: coin?.name || symbol,
+                        price: currentPrice,
+                        change24h: change24h,
+                        high24h: parseFloat(ticker.high24h),
+                        low24h: parseFloat(ticker.low24h),
+                        volume24h: volume24h,
+                        turnover24h: turnover24h
+                    };
+                });
+            } catch (error) {
+                console.error('获取市场数据失败:', error);
+                return [];
+            }
         }
 
-        // 历史回测
-        async function startBacktest() {
-            const symbol = document.getElementById('backtestSymbol').value.toUpperCase().trim();
-            const period = parseInt(document.getElementById('backtestPeriod').value);
-            const capital = parseFloat(document.getElementById('backtestCapital').value);
-            const positionSize = parseFloat(document.getElementById('backtestPosition').value);
-
-            if (!symbol) {
-                alert('请输入币种代码');
-                return;
-            }
-
-            document.getElementById('backtestLoading').classList.add('active');
-            document.getElementById('backtestResults').classList.remove('active');
-
+        async function fetchKlineData(symbol, timeframe = '1H', limit = 200) {
             try {
                 const instId = `${symbol}-USDT-SWAP`;
-                const response = await axios.get(`https://www.okx.com/api/v5/market/history-candles`, {
-                    params: {
-                        instId: instId,
-                        bar: '4H',
-                        limit: Math.min(period * 6, 100)
-                    }
-                });
-
-                const candles = response.data.data;
-                if (!candles || candles.length === 0) {
-                    throw new Error('无法获取历史数据');
+                const response = await fetch(
+                    `https://www.okx.com/api/v5/market/candles?instId=${instId}&bar=${timeframe}&limit=${limit}`
+                );
+                const data = await response.json();
+                
+                if (data.code !== '0') {
+                    throw new Error('API错误: ' + data.msg);
                 }
-
-                candles.reverse();
+                
+                const candles = data.data.reverse();
+                const timestamps = candles.map(c => parseInt(c[0]) / 1000);
+                const opens = candles.map(c => parseFloat(c[1]));
+                const highs = candles.map(c => parseFloat(c[2]));
+                const lows = candles.map(c => parseFloat(c[3]));
                 const closes = candles.map(c => parseFloat(c[4]));
-                const timestamps = candles.map(c => new Date(parseInt(c[0])));
+                const volumes = candles.map(c => parseFloat(c[5]));
+                
+                // 计算技术指标
                 const ema20 = calculateEMA(closes, 20);
                 const ema50 = calculateEMA(closes, 50);
-                const backtestResult = runBacktest(closes, ema20, ema50, capital, positionSize, timestamps);
-
-                displayBacktestResults(backtestResult);
-
-                document.getElementById('backtestLoading').classList.remove('active');
-                document.getElementById('backtestResults').classList.add('active');
-
+                const rsi = calculateRSI(closes);
+                const macd = calculateMACD(closes);
+                const bb = calculateBollingerBands(closes);
+                
+                return {
+                    timestamps,
+                    candles: candles.map((c, i) => ({
+                        time: timestamps[i],
+                        open: opens[i],
+                        high: highs[i],
+                        low: lows[i],
+                        close: closes[i]
+                    })),
+                    volumes: volumes.map((v, i) => ({
+                        time: timestamps[i],
+                        value: v,
+                        color: closes[i] >= opens[i] ? '#10b981' : '#ef4444'
+                    })),
+                    indicators: {
+                        ema20: ema20[ema20.length - 1],
+                        ema50: ema50[ema50.length - 1],
+                        rsi: rsi,
+                        macd: macd,
+                        bb: bb,
+                        ema20Series: ema20.map((val, i) => ({ time: timestamps[i], value: val })),
+                        ema50Series: ema50.map((val, i) => ({ time: timestamps[i], value: val }))
+                    }
+                };
             } catch (error) {
-                console.error('回测失败:', error);
-                alert('回测失败: ' + error.message);
-                document.getElementById('backtestLoading').classList.remove('active');
+                console.error('获取K线数据失败:', error);
+                return null;
             }
         }
 
-        function runBacktest(closes, ema20, ema50, initialCapital, positionSize, timestamps) {
-            let capital = initialCapital;
-            let position = null;
-            let trades = [];
-            let equityCurve = [initialCapital];
-            let winCount = 0;
-            let lossCount = 0;
-            let totalProfit = 0;
-            let totalLoss = 0;
-
-            for (let i = 50; i < closes.length; i++) {
-                const currentPrice = closes[i];
-                const prevEma20 = ema20[i - 1];
-                const prevEma50 = ema50[i - 1];
-                const currEma20 = ema20[i];
-                const currEma50 = ema50[i];
-
-                if (!position) {
-                    if (prevEma20 <= prevEma50 && currEma20 > currEma50) {
-                        const amount = capital * positionSize;
-                        const quantity = amount / currentPrice;
-                        position = {
-                            type: 'long',
-                            entryPrice: currentPrice,
-                            quantity: quantity,
-                            entryTime: timestamps[i]
-                        };
-                    } else if (prevEma20 >= prevEma50 && currEma20 < currEma50) {
-                        const amount = capital * positionSize;
-                        const quantity = amount / currentPrice;
-                        position = {
-                            type: 'short',
-                            entryPrice: currentPrice,
-                            quantity: quantity,
-                            entryTime: timestamps[i]
-                        };
-                    }
-                } else {
-                    let shouldClose = false;
-                    
-                    if (position.type === 'long' && prevEma20 >= prevEma50 && currEma20 < currEma50) {
-                        shouldClose = true;
-                    } else if (position.type === 'short' && prevEma20 <= prevEma50 && currEma20 > currEma50) {
-                        shouldClose = true;
-                    }
-
-                    if (shouldClose) {
-                        let pnl = 0;
-                        if (position.type === 'long') {
-                            pnl = (currentPrice - position.entryPrice) * position.quantity;
-                        } else {
-                            pnl = (position.entryPrice - currentPrice) * position.quantity;
-                        }
-
-                        const pnlPercent = (pnl / (position.entryPrice * position.quantity)) * 100;
-                        capital += pnl;
-
-                        if (pnl > 0) {
-                            winCount++;
-                            totalProfit += pnl;
-                        } else {
-                            lossCount++;
-                            totalLoss += Math.abs(pnl);
-                        }
-
-                        trades.push({
-                            type: position.type,
-                            entryPrice: position.entryPrice,
-                            exitPrice: currentPrice,
-                            entryTime: position.entryTime,
-                            exitTime: timestamps[i],
-                            pnl: pnl,
-                            pnlPercent: pnlPercent
-                        });
-
-                        position = null;
-                    }
-                }
-
-                let currentEquity = capital;
-                if (position) {
-                    if (position.type === 'long') {
-                        currentEquity += (currentPrice - position.entryPrice) * position.quantity;
-                    } else {
-                        currentEquity += (position.entryPrice - currentPrice) * position.quantity;
-                    }
-                }
-                equityCurve.push(currentEquity);
+        // UI 渲染
+        function sortCoinData(data, mode) {
+            const sorted = [...data];
+            switch(mode) {
+                case 'gain':
+                    sorted.sort((a, b) => b.change24h - a.change24h);
+                    break;
+                case 'loss':
+                    sorted.sort((a, b) => a.change24h - b.change24h);
+                    break;
+                case 'turnover':
+                    sorted.sort((a, b) => b.turnover24h - a.turnover24h);
+                    break;
+                case 'name':
+                    sorted.sort((a, b) => a.symbol.localeCompare(b.symbol));
+                    break;
             }
+            return sorted;
+        }
 
-            const totalTrades = trades.length;
-            const winRate = totalTrades > 0 ? (winCount / totalTrades * 100) : 0;
-            const avgProfit = winCount > 0 ? totalProfit / winCount : 0;
-            const avgLoss = lossCount > 0 ? totalLoss / lossCount : 0;
-            const profitFactor = totalLoss > 0 ? totalProfit / totalLoss : 0;
-            const finalReturn = ((capital - initialCapital) / initialCapital * 100);
+        function renderCoinList(data, forceRerender = false) {
+            const container = document.getElementById('coinList');
+            
+            if (data.length === 0) {
+                container.innerHTML = '<div class="loading"><div class="loading-text">暂无数据</div></div>';
+                return;
+            }
+            
+            // 按当前排序模式排序
+            const sortedData = sortCoinData(data, currentSortMode);
+            
+            // 检查是否是第一次渲染或强制重新渲染
+            const isFirstRender = container.querySelector('.coin-card') === null;
+            
+            if (isFirstRender || forceRerender) {
+                // 保存当前展开的币种
+                const currentExpandedCoins = new Set(expandedCoins);
+                
+                // 完整渲染：创建完整的HTML
+                container.innerHTML = sortedData.map(coin => `
+                    <div class="coin-card" id="coin-${coin.symbol}">
+                        <div class="coin-header" onclick="toggleDetails('${coin.symbol}')">
+                            <div class="coin-info">
+                                <div class="coin-icon">${coin.symbol.charAt(0)}</div>
+                                <div class="coin-name-group">
+                                    <div class="coin-symbol">${coin.symbol}</div>
+                                    <div class="coin-name">${coin.name}</div>
+                                </div>
+                            </div>
+                            <div class="coin-metrics">
+                                <div class="metric">
+                                    <div class="metric-label">💎 当前价格</div>
+                                    <div class="metric-value price-highlight">$${formatPrice(coin.price)}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">24h涨跌</div>
+                                    <div class="metric-value ${coin.change24h >= 0 ? 'positive' : 'negative'}">
+                                        ${coin.change24h >= 0 ? '+' : ''}${coin.change24h.toFixed(2)}%
+                                    </div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">24h最高</div>
+                                    <div class="metric-value high-price">$${formatPrice(coin.high24h)}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">24h最低</div>
+                                    <div class="metric-value low-price">$${formatPrice(coin.low24h)}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">📊 24h成交量</div>
+                                    <div class="metric-value">${formatNumber(coin.volume24h)} ${coin.symbol}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">💰 24h成交额</div>
+                                    <div class="metric-value">$${formatNumber(coin.turnover24h)}</div>
+                                </div>
+                            </div>
+                            <button class="expand-btn">
+                                <span>查看详情</span>
+                                <span class="expand-icon">▼</span>
+                            </button>
+                        </div>
+                        <div class="coin-details">
+                            <div class="details-content">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    <div class="loading-text">加载图表数据...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // 恢复之前展开的币种
+                setTimeout(() => {
+                    currentExpandedCoins.forEach(symbol => {
+                        const card = document.getElementById(`coin-${symbol}`);
+                        if (card && !card.classList.contains('expanded')) {
+                            toggleDetails(symbol);
+                        }
+                    });
+                }, 100);
+            } else {
+                // 后续更新：只更新数值，保持展开状态
+                sortedData.forEach(coin => {
+                    const card = document.getElementById(`coin-${coin.symbol}`);
+                    if (card) {
+                        // 只更新数值部分
+                        const metrics = card.querySelectorAll('.metric-value');
+                        if (metrics.length >= 6) {
+                            metrics[0].textContent = `$${formatPrice(coin.price)}`;
+                            metrics[1].textContent = `${coin.change24h >= 0 ? '+' : ''}${coin.change24h.toFixed(2)}%`;
+                            metrics[1].className = `metric-value ${coin.change24h >= 0 ? 'positive' : 'negative'}`;
+                            metrics[2].textContent = `$${formatPrice(coin.high24h)}`;
+                            metrics[3].textContent = `$${formatPrice(coin.low24h)}`;
+                            metrics[4].textContent = `${formatNumber(coin.volume24h)} ${coin.symbol}`;
+                            metrics[5].textContent = `$${formatNumber(coin.turnover24h)}`;
+                        }
+                        
+                        // 如果该币种已展开，更新K线图
+                        if (expandedCoins.has(coin.symbol) && charts[coin.symbol]) {
+                            updateChartData(coin.symbol);
+                        }
+                    }
+                });
+            }
+            
+            // 更新统计
+            document.getElementById('coinCount').textContent = sortedData.length;
+            const totalMarketCap = sortedData.reduce((sum, coin) => sum + (coin.price * coin.volume24h), 0);
+            document.getElementById('totalMarketCap').textContent = '$' + formatNumber(totalMarketCap);
+            document.getElementById('lastUpdateTime').textContent = new Date().toLocaleTimeString('zh-CN');
+            
+            // 保存数据
+            sortedData.forEach(coin => {
+                coinData[coin.symbol] = coin;
+            });
+        }
 
-            return {
-                initialCapital, finalCapital: capital, totalReturn: finalReturn,
-                totalTrades, winCount, lossCount, winRate,
-                avgProfit, avgLoss, profitFactor,
-                trades, equityCurve, timestamps
+        async function toggleDetails(symbol) {
+            const card = document.getElementById(`coin-${symbol}`);
+            const isExpanded = card.classList.contains('expanded');
+            
+            if (isExpanded) {
+                card.classList.remove('expanded');
+                expandedCoins.delete(symbol);
+                if (charts[symbol]) {
+                    charts[symbol].chart.remove();
+                    delete charts[symbol];
+                }
+            } else {
+                card.classList.add('expanded');
+                expandedCoins.add(symbol);
+                await loadCoinDetails(symbol);
+            }
+        }
+
+        async function loadCoinDetails(symbol) {
+            const detailsContent = document.querySelector(`#coin-${symbol} .details-content`);
+            
+            // 创建时间周期选择器和图表容器
+            detailsContent.innerHTML = `
+                <div class="timeframe-selector" id="timeframes-${symbol}">
+                    ${TIMEFRAMES.map(tf => `
+                        <button class="timeframe-btn ${tf.value === '1H' ? 'active' : ''}" 
+                                onclick="switchTimeframe('${symbol}', '${tf.value}')">
+                            ${tf.label}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <span>📈 价格走势图</span>
+                        <span id="chart-timeframe-${symbol}">1小时</span>
+                    </div>
+                    <div class="chart-canvas" id="chart-${symbol}"></div>
+                </div>
+                <div class="indicators-grid" id="indicators-${symbol}"></div>
+            `;
+            
+            // 加载默认时间周期数据
+            await loadChartData(symbol, '1H');
+        }
+
+        async function switchTimeframe(symbol, timeframe) {
+            // 更新按钮状态
+            const buttons = document.querySelectorAll(`#timeframes-${symbol} .timeframe-btn`);
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 更新时间标签
+            const tf = TIMEFRAMES.find(t => t.value === timeframe);
+            document.getElementById(`chart-timeframe-${symbol}`).textContent = tf.label;
+            
+            // 加载新数据
+            await loadChartData(symbol, timeframe);
+        }
+
+        async function loadChartData(symbol, timeframe) {
+            const klineData = await fetchKlineData(symbol, timeframe);
+            
+            if (!klineData) {
+                return;
+            }
+            
+            // 创建或更新图表
+            createChart(symbol, klineData);
+            
+            // 渲染指标
+            renderIndicators(symbol, klineData.indicators, coinData[symbol]);
+        }
+
+        async function updateChartData(symbol) {
+            // 获取当前时间框架
+            const buttons = document.querySelectorAll(`#timeframes-${symbol} .timeframe-btn`);
+            let currentTimeframe = '1H';
+            buttons.forEach(btn => {
+                if (btn.classList.contains('active')) {
+                    currentTimeframe = btn.textContent.trim();
+                    // 转换文本为API格式
+                    const tfMap = {
+                        '1分钟': '1m', '5分钟': '5m', '15分钟': '15m', '30分钟': '30m',
+                        '1小时': '1H', '4小时': '4H', '1天': '1D', '1周': '1W'
+                    };
+                    currentTimeframe = tfMap[currentTimeframe] || '1H';
+                }
+            });
+            
+            await loadChartData(symbol, currentTimeframe);
+        }
+
+        function changeSortMode(mode) {
+            currentSortMode = mode;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.controls .btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            
+            const btnMap = {
+                'gain': 'sortByGain',
+                'loss': 'sortByLoss',
+                'turnover': 'sortByTurnover',
+                'name': 'sortByName'
             };
+            
+            const activeBtn = document.getElementById(btnMap[mode]);
+            if (activeBtn) {
+                activeBtn.classList.remove('btn-secondary');
+                activeBtn.classList.add('btn-primary');
+            }
+            
+            // 重新渲染列表（强制重新渲染以改变顺序，但保持展开状态）
+            const allCoins = Object.values(coinData);
+            if (allCoins.length > 0) {
+                renderCoinList(allCoins, true);
+            }
         }
 
-        function displayBacktestResults(result) {
-            const summary = document.getElementById('backtestSummary');
-            summary.innerHTML = `
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">初始资金</div>
-                    <div class="backtest-metric-value">$${result.initialCapital.toLocaleString()}</div>
+        function createChart(symbol, data) {
+            const container = document.getElementById(`chart-${symbol}`);
+            
+            // 清除旧图表
+            if (charts[symbol]) {
+                charts[symbol].chart.remove();
+            }
+            
+            // 创建新图表
+            const chart = LightweightCharts.createChart(container, {
+                layout: {
+                    background: { color: 'transparent' },
+                    textColor: '#94a3b8',
+                },
+                grid: {
+                    vertLines: { color: '#334155' },
+                    horzLines: { color: '#334155' },
+                },
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                },
+                timeScale: {
+                    borderColor: '#334155',
+                    timeVisible: true,
+                    secondsVisible: false,
+                },
+                width: container.clientWidth,
+                height: 450
+            });
+            
+            // 添加K线
+            const candlestickSeries = chart.addCandlestickSeries({
+                upColor: '#10b981',
+                downColor: '#ef4444',
+                borderUpColor: '#10b981',
+                borderDownColor: '#ef4444',
+                wickUpColor: '#10b981',
+                wickDownColor: '#ef4444',
+            });
+            candlestickSeries.setData(data.candles);
+            
+            // 添加EMA20
+            const ema20Series = chart.addLineSeries({
+                color: '#f59e0b',
+                lineWidth: 2,
+                title: 'EMA20',
+            });
+            ema20Series.setData(data.indicators.ema20Series);
+            
+            // 添加EMA50
+            const ema50Series = chart.addLineSeries({
+                color: '#6366f1',
+                lineWidth: 2,
+                title: 'EMA50',
+            });
+            ema50Series.setData(data.indicators.ema50Series);
+            
+            // 添加成交量
+            const volumeSeries = chart.addHistogramSeries({
+                color: '#26a69a',
+                priceFormat: {
+                    type: 'volume',
+                },
+                priceScaleId: 'volume',
+                scaleMargins: {
+                    top: 0.85,
+                    bottom: 0,
+                },
+            });
+            volumeSeries.setData(data.volumes);
+            
+            // 保存图表实例
+            charts[symbol] = { chart, candlestickSeries, ema20Series, ema50Series, volumeSeries };
+            
+            // 响应式调整
+            const resizeObserver = new ResizeObserver(entries => {
+                if (entries.length === 0 || entries[0].target !== container) return;
+                const newRect = entries[0].contentRect;
+                chart.applyOptions({ width: newRect.width });
+            });
+            resizeObserver.observe(container);
+        }
+
+        function renderIndicators(symbol, indicators, coinData) {
+            const container = document.getElementById(`indicators-${symbol}`);
+            
+            // RSI 状态判断
+            let rsiStatus = '';
+            let rsiClass = 'rsi-neutral';
+            let rsiBadge = '<span class="indicator-badge neutral">中性</span>';
+            
+            if (indicators.rsi > 70) {
+                rsiStatus = '⚠️ 超买区间';
+                rsiClass = 'rsi-overbought';
+                rsiBadge = '<span class="indicator-badge overbought">超买</span>';
+            } else if (indicators.rsi < 30) {
+                rsiStatus = '✅ 超卖区间';
+                rsiClass = 'rsi-oversold';
+                rsiBadge = '<span class="indicator-badge oversold">超卖</span>';
+            } else {
+                rsiStatus = '中性区间';
+            }
+            
+            const macdColor = indicators.macd.histogram > 0 ? 'positive' : 'negative';
+            const trendColor = coinData.price > indicators.ema20 && indicators.ema20 > indicators.ema50 ? 'positive' : 'negative';
+            
+            container.innerHTML = `
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">EMA20</div>
+                    </div>
+                    <div class="indicator-value">$${formatPrice(indicators.ema20)}</div>
+                    <div class="indicator-desc">20周期指数移动平均</div>
                 </div>
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">最终资金</div>
-                    <div class="backtest-metric-value" style="color: ${result.finalCapital >= result.initialCapital ? '#28a745' : '#dc3545'}">
-                        $${result.finalCapital.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">EMA50</div>
+                    </div>
+                    <div class="indicator-value">$${formatPrice(indicators.ema50)}</div>
+                    <div class="indicator-desc">50周期指数移动平均</div>
+                </div>
+                
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">RSI(14)${rsiBadge}</div>
+                    </div>
+                    <div class="indicator-value ${rsiClass}">${indicators.rsi.toFixed(2)}</div>
+                    <div class="indicator-desc">${rsiStatus}</div>
+                </div>
+                
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">MACD</div>
+                    </div>
+                    <div class="indicator-value ${macdColor}">${formatPrice(indicators.macd.histogram)}</div>
+                    <div class="indicator-desc">
+                        ${indicators.macd.histogram > 0 ? '📈 多头信号' : '📉 空头信号'}
                     </div>
                 </div>
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">总收益率</div>
-                    <div class="backtest-metric-value" style="color: ${result.totalReturn >= 0 ? '#28a745' : '#dc3545'}">
-                        ${result.totalReturn.toFixed(2)}%
+                
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">布林带上轨</div>
                     </div>
+                    <div class="indicator-value">$${formatPrice(indicators.bb.upper)}</div>
+                    <div class="indicator-desc">价格压力位</div>
                 </div>
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">交易次数</div>
-                    <div class="backtest-metric-value">${result.totalTrades}</div>
-                </div>
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">胜率</div>
-                    <div class="backtest-metric-value" style="color: ${result.winRate >= 50 ? '#28a745' : '#dc3545'}">
-                        ${result.winRate.toFixed(1)}%
+                
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">布林带下轨</div>
                     </div>
+                    <div class="indicator-value">$${formatPrice(indicators.bb.lower)}</div>
+                    <div class="indicator-desc">价格支撑位</div>
                 </div>
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">盈利因子</div>
-                    <div class="backtest-metric-value" style="color: ${result.profitFactor >= 1 ? '#28a745' : '#dc3545'}">
-                        ${result.profitFactor.toFixed(2)}
+                
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">趋势判断</div>
                     </div>
+                    <div class="indicator-value ${trendColor}">
+                        ${coinData.price > indicators.ema20 && indicators.ema20 > indicators.ema50 ? '📈 上升趋势' : '📉 下降趋势'}
+                    </div>
+                    <div class="indicator-desc">基于均线排列</div>
                 </div>
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">平均盈利</div>
-                    <div class="backtest-metric-value positive">$${result.avgProfit.toFixed(2)}</div>
-                </div>
-                <div class="backtest-metric">
-                    <div class="backtest-metric-label">平均亏损</div>
-                    <div class="backtest-metric-value negative">$${result.avgLoss.toFixed(2)}</div>
+                
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-name">波动性</div>
+                    </div>
+                    <div class="indicator-value">
+                        ${(((indicators.bb.upper - indicators.bb.lower) / indicators.bb.middle) * 100).toFixed(2)}%
+                    </div>
+                    <div class="indicator-desc">布林带宽度</div>
                 </div>
             `;
-
-            drawEquityCurve(result.equityCurve, result.timestamps);
-
-            const tradeList = document.getElementById('tradeList');
-            tradeList.innerHTML = result.trades.map((trade, index) => `
-                <div class="trade-item ${trade.pnl > 0 ? 'profit' : 'loss'}">
-                    <div>
-                        <strong>#${index + 1}</strong> 
-                        ${trade.type === 'long' ? '📈 做多' : '📉 做空'}
-                        <br>
-                        <small>${trade.entryTime.toLocaleString('zh-CN', {month: 'short', day: 'numeric', hour: '2-digit'})}</small>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 1.2em; font-weight: 700; color: ${trade.pnl > 0 ? '#28a745' : '#dc3545'}">
-                            ${trade.pnl > 0 ? '+' : ''}$${trade.pnl.toFixed(2)}
-                        </div>
-                        <small>${trade.pnlPercent > 0 ? '+' : ''}${trade.pnlPercent.toFixed(2)}%</small>
-                    </div>
-                </div>
-            `).join('');
         }
 
-        function drawEquityCurve(equityCurve, timestamps) {
-            const ctx = document.getElementById('equityChart').getContext('2d');
-            
-            if (equityChart) {
-                equityChart.destroy();
-            }
+        // 事件处理
+        async function refreshData() {
+            const data = await fetchMarketData();
+            renderCoinList(data);
+        }
 
-            const labels = [];
-            for (let i = 0; i < equityCurve.length; i++) {
-                if (i < timestamps.length) {
-                    labels.push(timestamps[i].toLocaleString('zh-CN', {month: 'short', day: 'numeric'}));
-                } else {
-                    labels.push('');
+        function expandAll() {
+            COINS.forEach(coin => {
+                const card = document.getElementById(`coin-${coin.symbol}`);
+                if (card && !card.classList.contains('expanded')) {
+                    toggleDetails(coin.symbol);
                 }
-            }
+            });
+        }
 
-            equityChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '账户权益',
-                        data: equityCurve,
-                        borderColor: equityCurve[equityCurve.length - 1] >= equityCurve[0] ? 'rgb(40, 167, 69)' : 'rgb(220, 53, 69)',
-                        backgroundColor: equityCurve[equityCurve.length - 1] >= equityCurve[0] ? 'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.1,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: true },
-                        title: { display: true, text: '账户权益变化曲线' }
-                    },
-                    scales: { y: { beginAtZero: false } }
+        function collapseAll() {
+            COINS.forEach(coin => {
+                const card = document.getElementById(`coin-${coin.symbol}`);
+                if (card && card.classList.contains('expanded')) {
+                    toggleDetails(coin.symbol);
                 }
             });
         }
 
         // 初始化
-        window.onload = function() {
-            const savedDeepseekKey = localStorage.getItem('deepseekApiKey');
-            const savedQwenKey = localStorage.getItem('qwenApiKey');
+        // 页面加载完成后初始化
+        window.addEventListener('load', async () => {
+            // 绑定排序按钮事件
+            document.getElementById('sortByGain').addEventListener('click', () => changeSortMode('gain'));
+            document.getElementById('sortByLoss').addEventListener('click', () => changeSortMode('loss'));
+            document.getElementById('sortByTurnover').addEventListener('click', () => changeSortMode('turnover'));
+            document.getElementById('sortByName').addEventListener('click', () => changeSortMode('name'));
+            document.getElementById('expandAllBtn').addEventListener('click', expandAll);
+            document.getElementById('collapseAllBtn').addEventListener('click', collapseAll);
             
-            if (savedDeepseekKey && currentAIProvider === 'deepseek') {
-                document.getElementById('apiKey').value = savedDeepseekKey;
-            } else if (savedQwenKey && currentAIProvider === 'qwen') {
-                document.getElementById('apiKey').value = savedQwenKey;
-            }
+            // 加载每日一句
+            const quote = await fetchDailyQuote();
+            renderDailyQuote(quote);
             
-            initCoinSelector();
-        };
-
-        document.getElementById('apiKey').addEventListener('change', function() {
-            localStorage.setItem(`${currentAIProvider}ApiKey`, this.value);
+            // 加载加密货币数据
+            await refreshData();
+            
+            // 每10秒自动刷新
+            setInterval(async () => {
+                await refreshData();
+            }, 10000);
         });
 
-        document.querySelectorAll('input[name="aiProvider"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const provider = this.value;
-                selectProvider(provider);
-            });
-        });
-
+        // 页面卸载时清理
         window.addEventListener('beforeunload', () => {
-            stopMonitoring();
+            Object.values(charts).forEach(({ chart }) => chart.remove());
         });
     </script>
 </body>
