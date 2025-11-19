@@ -2,56 +2,209 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>加密货币实时监控 | Crypto Monitor Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crypto Monitor Pro | 专业加密货币监控</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* 全局重置与变量 */
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
+            --bg-body: #0b0e11;
+            --bg-card: #151a21;
+            --bg-card-hover: #1e232b;
+            --bg-glass: rgba(21, 26, 33, 0.8);
+            
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.3);
+            --accent: #8b5cf6;
+            
+            --success: #00c087;
+            --success-bg: rgba(0, 192, 135, 0.1);
+            --danger: #ff3b30;
+            --danger-bg: rgba(255, 59, 48, 0.1);
+            
+            --text-main: #e2e8f0;
             --text-muted: #94a3b8;
-            --border: #334155;
-            --shadow: rgba(0, 0, 0, 0.3);
+            --text-dim: #64748b;
+            
+            --border: 1px solid rgba(255, 255, 255, 0.08);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: var(--text-primary);
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0e11 60%);
             min-height: 100vh;
-            line-height: 1.6;
         }
 
-        /* Header */
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+        /* 数字专用字体 */
+        .metric-value, .stat-value, .price-highlight {
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- 头部设计 --- */
         .header {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem 0;
+            background: rgba(11, 14, 17, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: var(--border);
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 6px var(--shadow);
+            z-index: 100;
+            padding: 1rem 0;
         }
 
-        .header-content {
-            max-width: 1600px;
+        .container {
+            max-width: 1440px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 1.5rem;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            background: rgba(255,255,255,0.03);
+            padding: 0.5rem 1.5rem;
+            border-radius: 100px;
+            border: var(--border);
+        }
+
+        .stat-item { text-align: center; }
+        .stat-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+        .stat-value { font-size: 1rem; font-weight: 600; color: var(--text-main); }
+
+        .last-update {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        /* --- 快捷链接 & 每日一句 --- */
+        .sub-header {
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .link-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .link-item:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-main);
+            border-color: var(--text-dim);
+            transform: translateY(-1px);
+        }
+
+        .daily-quote {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(139, 92, 246, 0.05));
+            border: var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            max-width: 500px;
+        }
+        
+        .quote-text { font-style: italic; color: var(--text-main); margin-bottom: 4px; }
+        .quote-author { font-size: 0.75rem; color: var(--text-dim); text-align: right; }
+
+        /* --- 控制面板 --- */
+        .controls {
+            margin: 2rem 0 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -59,297 +212,92 @@
             gap: 1rem;
         }
 
-        .logo {
+        .controls-group {
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo-icon {
-            font-size: 2rem;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo-text h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo-text p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .header-right {
-            flex: 1;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        /* Quick Links */
-        .quick-links {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 2rem;
-            background: rgba(15, 23, 42, 0.5);
-            border-top: 1px solid var(--border);
-            flex-wrap: wrap;
-        }
-
-        .quick-links-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            padding-right: 0.5rem;
-            border-right: 2px solid var(--border);
-        }
-
-        .link-item {
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(51, 65, 85, 0.4);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .link-item:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-
-        .link-icon {
-            font-size: 1.1rem;
-        }
-
-        /* Daily Quote */
-        .daily-quote {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border-top: 1px solid var(--border);
-        }
-
-        .quote-icon {
-            font-size: 2rem;
-            opacity: 0.8;
-        }
-
-        .quote-content {
-            flex: 1;
-        }
-
-        .quote-text {
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: var(--text-primary);
-            font-style: italic;
-            margin-bottom: 0.5rem;
-        }
-
-        .quote-author {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            text-align: right;
-        }
-
-        .header-stats {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .last-update {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(99, 102, 241, 0.1);
-            border-radius: 999px;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.1); }
-        }
-
-        /* Container */
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Controls */
-        .controls {
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px var(--shadow);
-        }
-
-        .controls-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .controls-content {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
             flex-wrap: wrap;
+            background: var(--bg-card);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: var(--border);
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            background: transparent;
             border: none;
-            border-radius: 0.75rem;
-            font-size: 0.9rem;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
+            transition: all 0.2s;
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
+            gap: 6px;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
+        .btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
 
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
+        .btn-primary, .btn-primary:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-main);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        
+        /* 激活状态模拟 */
+        .btn.btn-primary {
+            background: var(--primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .btn.btn-primary:hover { background: var(--primary-dark); } /* 注意：JS逻辑切换类名，这里保留原有逻辑 */
+        
+        /* JS切换的是 btn-primary 和 btn-secondary 类，这里覆盖样式 */
+        button.btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        button.btn-secondary {
+            background: transparent;
+            color: var(--text-muted);
+        }
+        button.btn-secondary:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-main);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(51, 65, 85, 0.8);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(71, 85, 105, 0.8);
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* Coin List */
+        /* --- 币种卡片列表 --- */
         .coin-list {
             display: grid;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .coin-card {
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
+            background: var(--bg-card);
+            border: var(--border);
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px var(--shadow);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            position: relative;
         }
 
         .coin-card:hover {
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: var(--shadow);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px var(--shadow);
-            border-color: rgba(99, 102, 241, 0.5);
+            z-index: 2;
         }
 
         .coin-header {
+            padding: 1.25rem;
             display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 1rem;
-            padding: 1.5rem;
-            cursor: pointer;
+            grid-template-columns: 200px 1fr 100px;
             align-items: center;
+            cursor: pointer;
+            gap: 1rem;
         }
 
+        /* 币种基本信息 */
         .coin-info {
             display: flex;
             align-items: center;
@@ -359,608 +307,322 @@
         .coin-icon {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            background: #1e293b;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .coin-name-group {
-            display: flex;
-            flex-direction: column;
-        }
+        .coin-name-group { display: flex; flex-direction: column; }
+        .coin-symbol { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        .coin-name { font-size: 0.8rem; color: var(--text-dim); }
 
-        .coin-symbol {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .coin-name {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-
+        /* 数据指标网格 */
         .coin-metrics {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            align-items: center;
         }
 
-        .metric {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
+        .metric { display: flex; flex-direction: column; gap: 2px; }
+        .metric-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+        
+        .metric-value { font-size: 1rem; font-weight: 500; color: var(--text-main); }
+        
+        .price-highlight { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
 
-        .metric-label {
+        .positive { color: var(--success); text-shadow: 0 0 10px var(--success-bg); }
+        .negative { color: var(--danger); text-shadow: 0 0 10px var(--danger-bg); }
+
+        .high-price { color: var(--text-muted); font-size: 0.9rem; }
+        .low-price { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* 展开按钮 */
+        .expand-btn {
+            justify-self: end;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
             font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .metric-value {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        /* 突出显示当前价格 */
-        .metric-value.price-highlight {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #10b981, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-        }
-
-        .metric-value.positive {
-            color: var(--success);
-        }
-
-        .metric-value.negative {
-            color: var(--danger);
-        }
-
-        /* 高低价格带箭头 */
-        .metric-value.high-price {
-            color: var(--success);
+            border: none;
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 6px;
+            transition: all 0.2s;
         }
 
-        .metric-value.high-price::before {
-            content: '↑';
-            font-size: 1.25rem;
-        }
+        .expand-btn:hover { background: var(--primary); color: white; }
+        .coin-card.expanded .expand-icon { transform: rotate(180deg); }
+        .expand-icon { transition: transform 0.3s; font-size: 0.6rem; }
 
-        .metric-value.low-price {
-            color: var(--danger);
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .metric-value.low-price::before {
-            content: '↓';
-            font-size: 1.25rem;
-        }
-
-        .expand-btn {
-            padding: 0.75rem 1.5rem;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 0.75rem;
-            color: var(--primary);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .expand-btn:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--primary);
-        }
-
-        .expand-icon {
-            transition: transform 0.3s;
-        }
-
-        .coin-card.expanded .expand-icon {
-            transform: rotate(180deg);
-        }
-
-        /* Details Section */
+        /* --- 详情区域 --- */
         .coin-details {
             display: none;
-            border-top: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.5);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.2);
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .coin-card.expanded .coin-details {
-            display: block;
-            animation: slideDown 0.3s ease-out;
-        }
+        .coin-card.expanded .coin-details { display: block; }
 
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                max-height: 0;
-            }
-            to {
-                opacity: 1;
-                max-height: 2000px;
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .details-content {
-            padding: 2rem;
-        }
+        .details-content { padding: 1.5rem; }
 
-        /* Timeframe Selector */
+        /* 时间周期选择器 */
         .timeframe-selector {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            background: var(--bg-card);
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            border: var(--border);
+            width: fit-content;
         }
 
         .timeframe-btn {
-            padding: 0.5rem 1rem;
-            background: rgba(51, 65, 85, 0.5);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
+            padding: 6px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
             font-weight: 600;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
-        .timeframe-btn:hover {
-            background: rgba(71, 85, 105, 0.5);
-        }
+        .timeframe-btn:hover { color: var(--text-main); }
+        .timeframe-btn.active { background: var(--primary); color: white; }
 
-        .timeframe-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Chart Container */
+        /* 图表容器 */
         .chart-container {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
+            background: var(--bg-body);
+            border: var(--border);
+            border-radius: var(--radius-md);
             padding: 1rem;
-            margin-bottom: 1.5rem;
-            min-height: 500px;
-            position: relative;
-        }
-
-        .chart-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .chart-canvas {
-            width: 100%;
             height: 450px;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+        
+        .chart-title {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 10;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            background: rgba(11,14,17,0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            pointer-events: none;
         }
 
-        /* Indicators Grid */
+        /* 指标卡片网格 */
         .indicators-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1rem;
             margin-top: 1.5rem;
         }
 
         .indicator-card {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            transition: all 0.3s;
+            background: rgba(255,255,255,0.02);
+            border: var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            transition: transform 0.2s;
         }
 
-        .indicator-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-        }
+        .indicator-card:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
 
         .indicator-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
-        .indicator-name {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .indicator-name { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; }
+        .indicator-value { font-size: 1.5rem; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+        .indicator-desc { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.25rem; }
 
-        .indicator-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        /* RSI 指标状态标签 */
+        /* RSI 徽章 */
         .indicator-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 0.5rem;
         }
+        .indicator-badge.neutral { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); }
+        .indicator-badge.overbought { background: var(--danger-bg); color: var(--danger); }
+        .indicator-badge.oversold { background: var(--success-bg); color: var(--success); }
 
-        .indicator-badge.oversold {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
+        .rsi-overbought { color: var(--danger); }
+        .rsi-oversold { color: var(--success); }
 
-        .indicator-badge.overbought {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-        }
-
-        .indicator-badge.neutral {
-            background: rgba(148, 163, 184, 0.2);
-            color: var(--text-muted);
-            border: 1px solid var(--text-muted);
-        }
-
-        /* RSI 数值颜色 */
-        .indicator-value.rsi-oversold {
-            color: var(--success);
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-        }
-
-        .indicator-value.rsi-overbought {
-            color: var(--danger);
-            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-        }
-
-        .indicator-value.rsi-neutral {
-            color: var(--text-secondary);
-        }
-
-        .indicator-desc {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem;
-            gap: 1rem;
-        }
-
+        /* Loading & Toast */
+        .loading { padding: 3rem; text-align: center; color: var(--text-muted); }
         .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(99, 102, 241, 0.2);
+            width: 40px; height: 40px; margin: 0 auto 1rem;
+            border: 3px solid rgba(79, 70, 229, 0.1);
             border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            color: var(--text-primary);
-            box-shadow: 0 8px 24px var(--shadow);
-            z-index: 2000;
-            animation: slideInUp 0.3s ease-out;
-            max-width: 400px;
-        }
-
-        @keyframes slideInUp {
-            from {
-                transform: translateY(100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .toast.success {
-            border-left: 4px solid var(--success);
-        }
-
-        .toast.error {
-            border-left: 4px solid var(--danger);
-        }
-
-        /* Responsive */
+        /* --- 响应式设计 (Mobile Optimizations) --- */
         @media (max-width: 1024px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .header-stats {
-                width: 100%;
-                justify-content: space-around;
-            }
-
-            .quick-links {
-                padding: 1rem;
-                gap: 0.5rem;
-            }
-
-            .daily-quote {
-                padding: 1rem;
-            }
-
+            .header-inner { flex-direction: column; align-items: stretch; gap: 1rem; }
+            .header-stats { justify-content: space-between; width: 100%; }
+            .sub-header { grid-template-columns: 1fr; }
+            
             .coin-header {
-                grid-template-columns: 1fr;
-            }
-
-            .coin-metrics {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .expand-btn {
-                justify-self: stretch;
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .header {
-                padding: 1rem 0;
-            }
-
-            .header-content {
-                gap: 0.75rem;
-                padding: 0 1rem;
-            }
-
-            .logo h1 {
-                font-size: 1.25rem;
-            }
-
-            .header-stats {
-                flex-direction: row;
+                grid-template-columns: 1fr auto; /* 名字占左，展开按钮占右 */
+                grid-template-rows: auto auto;
                 gap: 1rem;
-                flex-wrap: wrap;
-            }
-
-            .stat-item {
-                flex: 1;
-                min-width: 100px;
-            }
-
-            .last-update {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .quick-links {
-                flex-direction: column;
-                align-items: stretch;
                 padding: 1rem;
             }
-
-            .quick-links-label {
-                border-right: none;
-                border-bottom: 2px solid var(--border);
-                padding-bottom: 0.5rem;
-                text-align: center;
-            }
-
-            .link-item {
-                justify-content: center;
-            }
-
-            .daily-quote {
-                flex-direction: column;
-                gap: 0.75rem;
-                padding: 1rem;
-            }
-
-            .quote-icon {
-                font-size: 1.5rem;
-            }
-
-            .quote-text {
-                font-size: 0.95rem;
-            }
-
-            .controls-content {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .btn {
-                justify-content: center;
-            }
-
+            
+            .coin-info { grid-column: 1 / -1; }
+            .expand-btn { grid-column: 2; grid-row: 1; align-self: center; }
+            
             .coin-metrics {
-                grid-template-columns: 1fr;
+                grid-column: 1 / -1;
+                grid-template-columns: repeat(2, 1fr); /* 2列显示数据 */
+                gap: 0.75rem;
             }
+            
+            /* 隐藏非核心数据在移动端 */
+            .metric:nth-child(n+5) { display: none; } /* 仅显示前4个关键指标 */
+            /* 展开时显示所有指标的逻辑需要JS配合，这里简单处理：全部显示但换行 */
+            .coin-card.expanded .metric:nth-child(n+5) { display: flex; }
+        }
 
-            .indicators-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 640px) {
+            .container { padding: 0 1rem; }
+            
+            /* 头部压缩 */
+            .logo-text h1 { font-size: 1.1rem; }
+            .header-stats { padding: 0.5rem 1rem; gap: 0.5rem; flex-wrap: wrap; justify-content: center; border-radius: var(--radius-md); }
+            .stat-item { min-width: 80px; }
+            
+            /* 控制按钮变为可横向滚动 */
+            .controls-group {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 4px;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
             }
-
-            .chart-canvas {
-                height: 300px;
+            .btn { flex-shrink: 0; }
+            
+            /* 列表调整 */
+            .coin-header { padding: 1rem 0.75rem; }
+            .coin-icon { width: 36px; height: 36px; font-size: 1rem; }
+            .coin-symbol { font-size: 1rem; }
+            
+            /* 重点突出价格和涨跌 */
+            .metric:first-child { grid-column: 1 / -1; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; margin-bottom: 0.25rem; }
+            .metric:first-child .metric-value { font-size: 1.5rem; }
+            
+            /* 时间周期按钮滚动 */
+            .timeframe-selector { 
+                width: 100%; 
+                overflow-x: auto; 
+                white-space: nowrap; 
+                -webkit-overflow-scrolling: touch;
             }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--bg-tertiary);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--border);
+            
+            .chart-container { height: 350px; padding: 0.5rem; }
+            .details-content { padding: 1rem 0.5rem; }
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="header-content">
+        <div class="container header-inner">
             <div class="logo">
-                <span class="logo-icon">₿</span>
+                <div class="logo-icon">⚡</div>
                 <div class="logo-text">
                     <h1>Crypto Monitor Pro</h1>
-                    <p>实时加密货币监控系统</p>
+                    <p>Live Market Intelligence</p>
                 </div>
             </div>
-            <div class="header-right">
-                <div class="header-stats">
-                    <div class="stat-item">
-                        <div class="stat-label">监控币种</div>
-                        <div class="stat-value" id="coinCount">-</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">总市值</div>
-                        <div class="stat-value" id="totalMarketCap">-</div>
-                    </div>
+            
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="stat-label">监控币种</div>
+                    <div class="stat-value" id="coinCount">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">总市值 (Est.)</div>
+                    <div class="stat-value" id="totalMarketCap">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">状态</div>
                     <div class="last-update">
                         <span class="pulse-dot"></span>
-                        <span id="lastUpdateTime">等待更新...</span>
+                        <span id="lastUpdateTime">Syncing...</span>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- 友情链接 -->
-        <div class="quick-links">
-            <div class="quick-links-label">📊 快捷导航</div>
-            <a href="https://gushitong.baidu.com/?quotationMarket=ab&moduleName=quotation" target="_blank" class="link-item">
-                <span class="link-icon">📈</span>
-                <span>全球股市一览</span>
-            </a>
-            <a href="https://www.jin10.com/" target="_blank" class="link-item">
-                <span class="link-icon">⚡</span>
-                <span>金十快讯</span>
-            </a>
-            <a href="https://s.weibo.com/top/summary?cate=realtimehot" target="_blank" class="link-item">
-                <span class="link-icon">🔥</span>
-                <span>微博热搜榜</span>
-            </a>
-        </div>
-        
-        <!-- 每日一句 -->
-        <div class="daily-quote" id="dailyQuote">
-            <div class="quote-icon">💬</div>
-            <div class="quote-content">
-                <div class="quote-text" id="quoteText">加载中...</div>
+
+        <div class="container sub-header">
+            <div class="daily-quote" id="dailyQuote">
+                <div class="quote-text" id="quoteText">Loading insights...</div>
                 <div class="quote-author" id="quoteAuthor"></div>
+            </div>
+
+            <div class="quick-links">
+                <a href="https://gushitong.baidu.com/?quotationMarket=ab&moduleName=quotation" target="_blank" class="link-item">
+                    <span>📊 全球股市</span>
+                </a>
+                <a href="https://www.jin10.com/" target="_blank" class="link-item">
+                    <span>⚡ 金十快讯</span>
+                </a>
+                <a href="https://s.weibo.com/top/summary?cate=realtimehot" target="_blank" class="link-item">
+                    <span>🔥 微博热搜</span>
+                </a>
             </div>
         </div>
     </header>
 
     <div class="container">
         <div class="controls">
-            <div class="controls-title">🎯 排序方式</div>
-            <div class="controls-content">
-                <button class="btn btn-primary" id="sortByGain">
-                    <span>📈</span>
-                    <span>涨幅最高</span>
-                </button>
-                <button class="btn btn-secondary" id="sortByLoss">
-                    <span>📉</span>
-                    <span>跌幅最大</span>
-                </button>
-                <button class="btn btn-secondary" id="sortByTurnover">
-                    <span>💰</span>
-                    <span>成交额最大</span>
-                </button>
-                <button class="btn btn-secondary" id="sortByName">
-                    <span>🔤</span>
-                    <span>按名称排序</span>
-                </button>
-                <button class="btn btn-secondary" id="expandAllBtn">
-                    <span>📊</span>
-                    <span>展开全部</span>
-                </button>
-                <button class="btn btn-secondary" id="collapseAllBtn">
-                    <span>📋</span>
-                    <span>收起全部</span>
-                </button>
+            <div class="controls-group">
+                <button class="btn btn-primary" id="sortByGain">📈 涨幅榜</button>
+                <button class="btn btn-secondary" id="sortByLoss">📉 跌幅榜</button>
+                <button class="btn btn-secondary" id="sortByTurnover">💰 成交额</button>
+                <button class="btn btn-secondary" id="sortByName">🔤 名称</button>
+            </div>
+            <div class="controls-group">
+                <button class="btn btn-secondary" id="expandAllBtn">展开所有</button>
+                <button class="btn btn-secondary" id="collapseAllBtn">收起所有</button>
             </div>
         </div>
 
         <div class="coin-list" id="coinList">
             <div class="loading">
                 <div class="spinner"></div>
-                <div class="loading-text">正在加载市场数据...</div>
+                <div class="loading-text">正在建立交易所连接...</div>
             </div>
         </div>
     </div>
@@ -981,12 +643,12 @@
         ];
 
         const TIMEFRAMES = [
-            { value: '1m', label: '1分钟' },
-            { value: '5m', label: '5分钟' },
-            { value: '15m', label: '15分钟' },
-            { value: '30m', label: '30分钟' },
-            { value: '1H', label: '1小时' },
-            { value: '4H', label: '4小时' },
+            { value: '1m', label: '1分' },
+            { value: '5m', label: '5分' },
+            { value: '15m', label: '15分' },
+            { value: '30m', label: '30分' },
+            { value: '1H', label: '1时' },
+            { value: '4H', label: '4时' },
             { value: '1D', label: '1天' },
             { value: '1W', label: '1周' }
         ];
@@ -1182,7 +844,7 @@
                     volumes: volumes.map((v, i) => ({
                         time: timestamps[i],
                         value: v,
-                        color: closes[i] >= opens[i] ? '#10b981' : '#ef4444'
+                        color: closes[i] >= opens[i] ? 'rgba(0, 192, 135, 0.5)' : 'rgba(255, 59, 48, 0.5)' // 调整透明度适应暗色背景
                     })),
                     indicators: {
                         ema20: ema20[ema20.length - 1],
@@ -1224,7 +886,7 @@
             const container = document.getElementById('coinList');
             
             if (data.length === 0) {
-                container.innerHTML = '<div class="loading"><div class="loading-text">暂无数据</div></div>';
+                container.innerHTML = '<div class="loading"><div class="loading-text">连接中...</div></div>';
                 return;
             }
             
@@ -1251,34 +913,30 @@
                             </div>
                             <div class="coin-metrics">
                                 <div class="metric">
-                                    <div class="metric-label">💎 当前价格</div>
+                                    <div class="metric-label">当前价格</div>
                                     <div class="metric-value price-highlight">$${formatPrice(coin.price)}</div>
                                 </div>
                                 <div class="metric">
-                                    <div class="metric-label">24h涨跌</div>
+                                    <div class="metric-label">24h 涨跌</div>
                                     <div class="metric-value ${coin.change24h >= 0 ? 'positive' : 'negative'}">
                                         ${coin.change24h >= 0 ? '+' : ''}${coin.change24h.toFixed(2)}%
                                     </div>
                                 </div>
                                 <div class="metric">
-                                    <div class="metric-label">24h最高</div>
+                                    <div class="metric-label">24h 最高</div>
                                     <div class="metric-value high-price">$${formatPrice(coin.high24h)}</div>
                                 </div>
                                 <div class="metric">
-                                    <div class="metric-label">24h最低</div>
+                                    <div class="metric-label">24h 最低</div>
                                     <div class="metric-value low-price">$${formatPrice(coin.low24h)}</div>
                                 </div>
                                 <div class="metric">
-                                    <div class="metric-label">📊 24h成交量</div>
-                                    <div class="metric-value">${formatNumber(coin.volume24h)} ${coin.symbol}</div>
-                                </div>
-                                <div class="metric">
-                                    <div class="metric-label">💰 24h成交额</div>
-                                    <div class="metric-value">$${formatNumber(coin.turnover24h)}</div>
+                                    <div class="metric-label">成交量</div>
+                                    <div class="metric-value">${formatNumber(coin.volume24h)}</div>
                                 </div>
                             </div>
                             <button class="expand-btn">
-                                <span>查看详情</span>
+                                <span>分析</span>
                                 <span class="expand-icon">▼</span>
                             </button>
                         </div>
@@ -1309,14 +967,13 @@
                     if (card) {
                         // 只更新数值部分
                         const metrics = card.querySelectorAll('.metric-value');
-                        if (metrics.length >= 6) {
+                        if (metrics.length >= 5) {
                             metrics[0].textContent = `$${formatPrice(coin.price)}`;
                             metrics[1].textContent = `${coin.change24h >= 0 ? '+' : ''}${coin.change24h.toFixed(2)}%`;
                             metrics[1].className = `metric-value ${coin.change24h >= 0 ? 'positive' : 'negative'}`;
                             metrics[2].textContent = `$${formatPrice(coin.high24h)}`;
                             metrics[3].textContent = `$${formatPrice(coin.low24h)}`;
-                            metrics[4].textContent = `${formatNumber(coin.volume24h)} ${coin.symbol}`;
-                            metrics[5].textContent = `$${formatNumber(coin.turnover24h)}`;
+                            metrics[4].textContent = `${formatNumber(coin.volume24h)}`;
                         }
                         
                         // 如果该币种已展开，更新K线图
@@ -1372,7 +1029,7 @@
                 </div>
                 <div class="chart-container">
                     <div class="chart-title">
-                        <span>📈 价格走势图</span>
+                        <span>价格走势图 · </span>
                         <span id="chart-timeframe-${symbol}">1小时</span>
                     </div>
                     <div class="chart-canvas" id="chart-${symbol}"></div>
@@ -1388,7 +1045,9 @@
             // 更新按钮状态
             const buttons = document.querySelectorAll(`#timeframes-${symbol} .timeframe-btn`);
             buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            // 修复：event target获取
+            const target = event.target;
+            target.classList.add('active');
             
             // 更新时间标签
             const tf = TIMEFRAMES.find(t => t.value === timeframe);
@@ -1418,13 +1077,10 @@
             let currentTimeframe = '1H';
             buttons.forEach(btn => {
                 if (btn.classList.contains('active')) {
-                    currentTimeframe = btn.textContent.trim();
-                    // 转换文本为API格式
-                    const tfMap = {
-                        '1分钟': '1m', '5分钟': '5m', '15分钟': '15m', '30分钟': '30m',
-                        '1小时': '1H', '4小时': '4H', '1天': '1D', '1周': '1W'
-                    };
-                    currentTimeframe = tfMap[currentTimeframe] || '1H';
+                    // 反向查找value
+                    const label = btn.textContent.trim();
+                    const tf = TIMEFRAMES.find(t => t.label === label);
+                    if (tf) currentTimeframe = tf.value;
                 }
             });
             
@@ -1462,7 +1118,9 @@
 
         function createChart(symbol, data) {
             const container = document.getElementById(`chart-${symbol}`);
-            
+            // 确保容器有尺寸，防止lightweight-charts报错
+            if (!container) return;
+
             // 清除旧图表
             if (charts[symbol]) {
                 charts[symbol].chart.remove();
@@ -1472,11 +1130,11 @@
             const chart = LightweightCharts.createChart(container, {
                 layout: {
                     background: { color: 'transparent' },
-                    textColor: '#94a3b8',
+                    textColor: '#64748b',
                 },
                 grid: {
-                    vertLines: { color: '#334155' },
-                    horzLines: { color: '#334155' },
+                    vertLines: { color: '#1e293b' },
+                    horzLines: { color: '#1e293b' },
                 },
                 crosshair: {
                     mode: LightweightCharts.CrosshairMode.Normal,
@@ -1495,18 +1153,18 @@
             
             // 添加K线
             const candlestickSeries = chart.addCandlestickSeries({
-                upColor: '#10b981',
-                downColor: '#ef4444',
-                borderUpColor: '#10b981',
-                borderDownColor: '#ef4444',
-                wickUpColor: '#10b981',
-                wickDownColor: '#ef4444',
+                upColor: '#00c087',
+                downColor: '#ff3b30',
+                borderUpColor: '#00c087',
+                borderDownColor: '#ff3b30',
+                wickUpColor: '#00c087',
+                wickDownColor: '#ff3b30',
             });
             candlestickSeries.setData(data.candles);
             
             // 添加EMA20
             const ema20Series = chart.addLineSeries({
-                color: '#f59e0b',
+                color: '#fbbf24',
                 lineWidth: 2,
                 title: 'EMA20',
             });
@@ -1514,7 +1172,7 @@
             
             // 添加EMA50
             const ema50Series = chart.addLineSeries({
-                color: '#6366f1',
+                color: '#818cf8',
                 lineWidth: 2,
                 title: 'EMA50',
             });
@@ -1528,7 +1186,7 @@
                 },
                 priceScaleId: 'volume',
                 scaleMargins: {
-                    top: 0.85,
+                    top: 0.8,
                     bottom: 0,
                 },
             });
@@ -1541,7 +1199,7 @@
             const resizeObserver = new ResizeObserver(entries => {
                 if (entries.length === 0 || entries[0].target !== container) return;
                 const newRect = entries[0].contentRect;
-                chart.applyOptions({ width: newRect.width });
+                chart.applyOptions({ width: newRect.width, height: newRect.height });
             });
             resizeObserver.observe(container);
         }
@@ -1555,15 +1213,15 @@
             let rsiBadge = '<span class="indicator-badge neutral">中性</span>';
             
             if (indicators.rsi > 70) {
-                rsiStatus = '⚠️ 超买区间';
+                rsiStatus = '⚠️ 警惕回调';
                 rsiClass = 'rsi-overbought';
                 rsiBadge = '<span class="indicator-badge overbought">超买</span>';
             } else if (indicators.rsi < 30) {
-                rsiStatus = '✅ 超卖区间';
+                rsiStatus = '✅ 关注反弹';
                 rsiClass = 'rsi-oversold';
                 rsiBadge = '<span class="indicator-badge oversold">超卖</span>';
             } else {
-                rsiStatus = '中性区间';
+                rsiStatus = '波动区间';
             }
             
             const macdColor = indicators.macd.histogram > 0 ? 'positive' : 'negative';
@@ -1575,7 +1233,7 @@
                         <div class="indicator-name">EMA20</div>
                     </div>
                     <div class="indicator-value">$${formatPrice(indicators.ema20)}</div>
-                    <div class="indicator-desc">20周期指数移动平均</div>
+                    <div class="indicator-desc">短期成本线</div>
                 </div>
                 
                 <div class="indicator-card">
@@ -1583,12 +1241,12 @@
                         <div class="indicator-name">EMA50</div>
                     </div>
                     <div class="indicator-value">$${formatPrice(indicators.ema50)}</div>
-                    <div class="indicator-desc">50周期指数移动平均</div>
+                    <div class="indicator-desc">中期成本线</div>
                 </div>
                 
                 <div class="indicator-card">
                     <div class="indicator-header">
-                        <div class="indicator-name">RSI(14)${rsiBadge}</div>
+                        <div class="indicator-name">RSI(14) ${rsiBadge}</div>
                     </div>
                     <div class="indicator-value ${rsiClass}">${indicators.rsi.toFixed(2)}</div>
                     <div class="indicator-desc">${rsiStatus}</div>
@@ -1600,24 +1258,16 @@
                     </div>
                     <div class="indicator-value ${macdColor}">${formatPrice(indicators.macd.histogram)}</div>
                     <div class="indicator-desc">
-                        ${indicators.macd.histogram > 0 ? '📈 多头信号' : '📉 空头信号'}
+                        ${indicators.macd.histogram > 0 ? '📈 多头增强' : '📉 空头增强'}
                     </div>
                 </div>
                 
                 <div class="indicator-card">
                     <div class="indicator-header">
-                        <div class="indicator-name">布林带上轨</div>
+                        <div class="indicator-name">布林带通道</div>
                     </div>
                     <div class="indicator-value">$${formatPrice(indicators.bb.upper)}</div>
-                    <div class="indicator-desc">价格压力位</div>
-                </div>
-                
-                <div class="indicator-card">
-                    <div class="indicator-header">
-                        <div class="indicator-name">布林带下轨</div>
-                    </div>
-                    <div class="indicator-value">$${formatPrice(indicators.bb.lower)}</div>
-                    <div class="indicator-desc">价格支撑位</div>
+                    <div class="indicator-desc">上轨阻力位 (下轨 $${formatPrice(indicators.bb.lower)})</div>
                 </div>
                 
                 <div class="indicator-card">
@@ -1625,19 +1275,9 @@
                         <div class="indicator-name">趋势判断</div>
                     </div>
                     <div class="indicator-value ${trendColor}">
-                        ${coinData.price > indicators.ema20 && indicators.ema20 > indicators.ema50 ? '📈 上升趋势' : '📉 下降趋势'}
+                        ${coinData.price > indicators.ema20 && indicators.ema20 > indicators.ema50 ? '📈 上升通道' : '📉 下行通道'}
                     </div>
-                    <div class="indicator-desc">基于均线排列</div>
-                </div>
-                
-                <div class="indicator-card">
-                    <div class="indicator-header">
-                        <div class="indicator-name">波动性</div>
-                    </div>
-                    <div class="indicator-value">
-                        ${(((indicators.bb.upper - indicators.bb.lower) / indicators.bb.middle) * 100).toFixed(2)}%
-                    </div>
-                    <div class="indicator-desc">布林带宽度</div>
+                    <div class="indicator-desc">基于价格与均线位置</div>
                 </div>
             `;
         }
@@ -1667,7 +1307,6 @@
         }
 
         // 初始化
-        // 页面加载完成后初始化
         window.addEventListener('load', async () => {
             // 绑定排序按钮事件
             document.getElementById('sortByGain').addEventListener('click', () => changeSortMode('gain'));
